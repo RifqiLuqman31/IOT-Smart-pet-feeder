@@ -1,646 +1,226 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PetFeeder IoT Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Pet Feeder Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff00c8;
+            --dark-bg: #0a0e17;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.05);
+        }
 
-    :root {
-      --orange:    #FF7043;
-      --orange-dk: #E64A19;
-      --orange-lt: #FFF3E0;
-      --orange-bd: #FFCCBC;
-      --green:     #43A047;
-      --green-lt:  #E8F5E9;
-      --green-bd:  #A5D6A7;
-      --amber:     #FB8C00;
-      --amber-lt:  #FFF8E1;
-      --red:       #E53935;
-      --red-lt:    #FFEBEE;
-      --blue:      #1E88E5;
-      --blue-lt:   #E3F2FD;
-      --bg:        #FFF8F0;
-      --card:      #FFFFFF;
-      --border:    #F0EDE8;
-      --text:      #2D2D2D;
-      --muted:     #AAAAAA;
-      --radius:    18px;
-    }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark-bg);
+            /* Background efek cahaya neon */
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(0, 243, 255, 0.1), transparent 30%),
+                radial-gradient(circle at 85% 30%, rgba(255, 0, 200, 0.1), transparent 30%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            overflow-x: hidden;
+        }
 
-    body {
-      font-family: 'Nunito', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      max-width: 480px;
-      margin: 0 auto;
-    }
+        /* Desain Kartu Efek Kaca (Glassmorphism) */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2.5rem 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            transition: all 0.4s ease;
+            height: 100%;
+        }
 
-    /* ── TOPBAR ── */
-    .topbar {
-      background: var(--card);
-      border-bottom: 2px solid var(--orange-bd);
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .brand { display: flex; align-items: center; gap: 10px; }
-    .brand-icon {
-      width: 42px; height: 42px;
-      background: var(--orange-lt);
-      border: 2px solid var(--orange-bd);
-      border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px;
-    }
-    .brand-name { font-size: 15px; font-weight: 900; color: var(--orange-dk); }
-    .brand-sub  { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 1px; }
-    .topbar-right { display: flex; align-items: center; gap: 8px; }
-    #clock { font-size: 11px; color: var(--muted); font-weight: 700; }
-    .online-pill {
-      display: flex; align-items: center; gap: 5px;
-      background: var(--green-lt);
-      border: 1.5px solid var(--green-bd);
-      border-radius: 20px;
-      padding: 4px 11px;
-      font-size: 12px; font-weight: 800; color: var(--green);
-    }
-    .blink {
-      width: 7px; height: 7px;
-      background: var(--green);
-      border-radius: 50%;
-      animation: blk 1.5s infinite;
-    }
-    @keyframes blk { 0%,100%{opacity:1} 50%{opacity:0.2} }
+        .glass-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 45px 0 rgba(0, 243, 255, 0.15);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+        }
 
-    /* ── BODY ── */
-    .body { padding: 12px; }
+        /* Tipografi Teks Angka Glowing */
+        .value-text {
+            font-size: 4rem;
+            font-weight: 800;
+            background: -webkit-linear-gradient(45deg, var(--neon-cyan), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+            margin: 10px 0;
+        }
 
-    /* ── HERO ── */
-    .hero {
-      background: var(--card);
-      border-radius: var(--radius);
-      border: 1.5px solid var(--orange-bd);
-      padding: 16px;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .hero-av {
-      width: 64px; height: 64px;
-      border-radius: 50%;
-      background: var(--orange-lt);
-      border: 2.5px solid var(--orange-bd);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 30px;
-      flex-shrink: 0;
-      transition: all 0.4s;
-    }
-    .hero-name { font-size: 17px; font-weight: 900; color: var(--orange-dk); }
-    .hero-mood { font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 3px; min-height: 18px; }
-    .hero-pill {
-      display: inline-flex; align-items: center; gap: 4px;
-      margin-top: 6px; border-radius: 20px;
-      padding: 3px 10px; font-size: 11px; font-weight: 800;
-      background: var(--orange-lt); color: var(--orange-dk);
-      border: 1px solid var(--orange-bd);
-      transition: all 0.4s;
-    }
+        .unit-text {
+            font-size: 1.2rem;
+            color: var(--neon-cyan);
+            font-weight: 600;
+        }
 
-    /* ── SECTION LABEL ── */
-    .sec-lbl {
-      font-size: 10px; font-weight: 800;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      margin: 14px 0 8px 2px;
-    }
+        .label-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #8b9bb4;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
 
-    /* ── 2-COL GRID ── */
-    .grid2 {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 10px;
-      margin-bottom: 12px;
-    }
+        /* Desain Tombol Hologram/Neon */
+        .btn-glow {
+            background: transparent;
+            color: var(--neon-cyan);
+            border: 2px solid var(--neon-cyan);
+            padding: 18px 50px;
+            font-size: 1.2rem;
+            font-weight: 800;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: 0.4s;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 0 15px transparent;
+        }
 
-    /* ── SENSOR CARD ── */
-    .scard {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 14px 13px;
-      border: 1.5px solid var(--border);
-      transition: border-color 0.3s;
-    }
-    .scard-ico { font-size: 22px; margin-bottom: 6px; display: block; }
-    .scard-val { font-size: 28px; font-weight: 900; color: var(--text); line-height: 1; }
-    .scard-unit { font-size: 13px; font-weight: 600; color: var(--muted); }
-    .scard-lbl {
-      font-size: 10px; color: var(--muted);
-      font-weight: 800; margin-top: 4px;
-      text-transform: uppercase; letter-spacing: 0.06em;
-    }
-    .prog-bg { background: #F5F5F5; border-radius: 8px; height: 7px; margin-top: 9px; overflow: hidden; }
-    .prog { height: 100%; border-radius: 8px; transition: width 0.8s ease, background 0.4s; }
-    .chip {
-      display: inline-flex; align-items: center; gap: 3px;
-      margin-top: 7px; border-radius: 20px;
-      padding: 3px 9px; font-size: 11px; font-weight: 800;
-    }
-    .chip-ok     { background: var(--green-lt); color: #2E7D32; }
-    .chip-warn   { background: var(--amber-lt); color: #E65100; }
-    .chip-danger { background: var(--red-lt);   color: #B71C1C; }
-    .chip-info   { background: var(--blue-lt);  color: #1565C0; }
+        .btn-glow:hover {
+            background: var(--neon-cyan);
+            color: var(--dark-bg);
+            box-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
+            transform: scale(1.05);
+        }
 
-    /* ── PIR ROW ── */
-    .pir-row {
-      background: var(--card);
-      border-radius: var(--radius);
-      border: 1.5px solid var(--border);
-      padding: 14px;
-      margin-bottom: 12px;
-      display: flex; align-items: center; gap: 12px;
-      transition: border-color 0.4s, background 0.4s;
-    }
-    .pir-ico {
-      width: 52px; height: 52px;
-      border-radius: 14px;
-      background: #F5F5F5;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 26px; flex-shrink: 0;
-      transition: background 0.4s;
-    }
-    .pir-title { font-size: 15px; font-weight: 900; }
-    .pir-desc  { font-size: 12px; color: var(--muted); font-weight: 600; margin-top: 3px; }
+        /* Animasi Lampu Status Indikator */
+        .status-dot {
+            height: 12px;
+            width: 12px;
+            background-color: #00ff00;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+            box-shadow: 0 0 10px #00ff00;
+            animation: pulse 1.5s infinite;
+        }
 
-    /* ── FEED BUTTON ── */
-    .feed-btn {
-      width: 100%;
-      padding: 17px;
-      background: var(--orange);
-      border: none;
-      border-radius: var(--radius);
-      color: #fff;
-      font-family: 'Nunito', sans-serif;
-      font-size: 16px; font-weight: 900;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 10px;
-      transition: all 0.2s;
-      margin-bottom: 12px;
-      letter-spacing: 0.2px;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .feed-btn:active { transform: scale(0.97); }
-    .feed-btn.busy   { background: var(--amber); }
-    .feed-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 255, 0, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 0, 0); }
+        }
 
-    /* ── CHART ── */
-    .chart-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      border: 1.5px solid var(--border);
-      padding: 14px;
-      margin-bottom: 12px;
-    }
-    .chart-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .chart-ttl { font-size: 13px; font-weight: 800; }
-    .bars { display: flex; align-items: flex-end; gap: 3px; height: 64px; }
-    .bar  { flex: 1; border-radius: 4px 4px 0 0; min-height: 4px; transition: height 0.5s ease; background: #FFCCBC; }
-    .bar.now { background: var(--orange); }
-
-    /* ── LOG ── */
-    .log-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      border: 1.5px solid var(--border);
-      overflow: hidden;
-      margin-bottom: 12px;
-    }
-    .log-hd {
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .log-hd-t { font-size: 13px; font-weight: 900; }
-    .log-row {
-      display: flex; align-items: flex-start; gap: 10px;
-      padding: 10px 14px;
-      border-bottom: 1px solid #FAFAFA;
-      animation: fadeIn 0.3s ease;
-    }
-    @keyframes fadeIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
-    .log-row:last-child { border-bottom: none; }
-    .log-em  { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-    .log-t   { font-size: 12px; font-weight: 700; color: #444; line-height: 1.4; }
-    .log-ts  { font-size: 11px; color: var(--muted); margin-top: 2px; font-weight: 600; }
-
-    /* ── HW CARD ── */
-    .hw-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      border: 1.5px solid var(--border);
-      padding: 14px;
-      margin-bottom: 12px;
-    }
-    .pin-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-    .pin-chip {
-      background: var(--orange-lt);
-      border-radius: 8px;
-      padding: 5px 10px;
-      font-size: 11px; font-weight: 800;
-      color: #BF360C;
-    }
-    .pin-chip b { color: var(--orange-dk); }
-    .hw-note {
-      font-size: 11px; color: var(--muted); font-weight: 600;
-      border-top: 1px solid var(--border);
-      padding-top: 8px; margin-top: 4px;
-      line-height: 1.7;
-    }
-
-    /* ── ERROR BANNER ── */
-    .err-banner {
-      background: var(--red-lt);
-      border: 1.5px solid #FFCDD2;
-      border-radius: 12px;
-      padding: 10px 14px;
-      font-size: 12px; font-weight: 700;
-      color: var(--red);
-      margin-bottom: 12px;
-      display: none;
-    }
-
-    /* ── FOOTER ── */
-    .footer {
-      text-align: center;
-      padding: 20px 16px;
-      font-size: 11px;
-      color: var(--muted);
-      font-weight: 600;
-    }
-  </style>
+        .status-text {
+            font-size: 0.9rem;
+            color: #8b9bb4;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- TOPBAR -->
-  <div class="topbar">
-    <div class="brand">
-      <div class="brand-icon">🐾</div>
-      <div>
-        <div class="brand-name">PetFeeder IoT</div>
-        <div class="brand-sub">NodeMCU ESP8266 · Blynk</div>
-      </div>
-    </div>
-    <div class="topbar-right">
-      <span id="clock">--:--:--</span>
-      <div class="online-pill">
-        <div class="blink" id="blink-dot"></div>
-        <span id="conn-label">Online</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- BODY -->
-  <div class="body">
-
-    <!-- Error banner -->
-    <div class="err-banner" id="err-banner">
-      ⚠️ Tidak dapat terhubung ke Blynk API. Pastikan perangkat menyala dan token benar.
-    </div>
-
-    <!-- Hero pet -->
-    <div class="hero">
-      <div class="hero-av" id="av">🐱</div>
-      <div>
-        <div class="hero-name">Kesayangan</div>
-        <div class="hero-mood" id="mood">Menghubungkan ke sensor...</div>
-        <div class="hero-pill" id="hero-pill">● Memuat...</div>
-      </div>
-    </div>
-
-    <!-- Sensor cards -->
-    <div class="sec-lbl">Sensor real-time</div>
-    <div class="grid2">
-      <div class="scard">
-        <span class="scard-ico">🍽️</span>
-        <div><span class="scard-val" id="v-berat">--</span><span class="scard-unit"> g</span></div>
-        <div class="scard-lbl">Berat piring</div>
-        <div class="prog-bg"><div class="prog" id="pb" style="width:0%;background:#42A5F5"></div></div>
-        <div class="chip chip-info" id="cb">Memuat...</div>
-      </div>
-      <div class="scard">
-        <span class="scard-ico">📦</span>
-        <div><span class="scard-val" id="v-stok">--</span><span class="scard-unit"> cm</span></div>
-        <div class="scard-lbl">Jarak stok</div>
-        <div class="prog-bg"><div class="prog" id="ps" style="width:0%;background:#66BB6A"></div></div>
-        <div class="chip chip-info" id="cs">Memuat...</div>
-      </div>
-    </div>
-
-    <!-- PIR -->
-    <div class="pir-row" id="pir-row">
-      <div class="pir-ico" id="pir-ico"><span id="pir-em" style="font-size:26px">⏳</span></div>
-      <div>
-        <div class="pir-title">Sensor Gerak (PIR D7)</div>
-        <div class="pir-desc" id="pir-desc">Menghubungkan...</div>
-      </div>
-    </div>
-
-    <!-- Feed button -->
-    <div class="sec-lbl">Kontrol manual</div>
-    <button class="feed-btn" id="fbtn" onclick="doFeed()">
-      <span style="font-size:20px">🍖</span>
-      <span id="flbl">Beri Makan Sekarang</span>
-    </button>
-
-    <!-- Chart -->
-    <div class="sec-lbl">Grafik berat (20 data terakhir)</div>
-    <div class="chart-card">
-      <div class="chart-top">
-        <span class="chart-ttl">Berat piring (gram)</span>
-        <span class="chip chip-info" id="avg-chip">menghitung...</span>
-      </div>
-      <div class="bars" id="bars">
-        <div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-weight:700">
-          Menunggu data...
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-white mb-3" style="letter-spacing: 2px;">
+            NEXUS <span style="color: var(--neon-cyan);">FEEDER</span>
+        </h1>
+        <div class="d-flex justify-content-center align-items-center">
+            <span class="status-dot" id="online-dot"></span>
+            <span class="status-text" id="status-update">Menghubungkan ke satelit...</span>
         </div>
-      </div>
-      <div style="display:flex;justify-content:space-between;margin-top:5px">
-        <span style="font-size:10px;color:var(--muted);font-weight:700">data lama</span>
-        <span style="font-size:10px;color:var(--orange);font-weight:800">sekarang</span>
-      </div>
     </div>
 
-    <!-- Log -->
-    <div class="sec-lbl">Riwayat aktivitas</div>
-    <div class="log-card">
-      <div class="log-hd">
-        <span class="log-hd-t">📋 Log sistem</span>
-        <span class="chip chip-info" id="lcnt">0 catatan</span>
-      </div>
-      <div id="log-list">
-        <div class="log-row">
-          <span class="log-em">⏳</span>
-          <div><div class="log-t">Menghubungkan ke Blynk API...</div></div>
+    <div class="row g-4 text-center">
+        <div class="col-md-4">
+            <div class="glass-card">
+                <div class="label-text">Sisa Piring</div>
+                <div class="value-text" id="berat">0</div>
+                <div class="unit-text">GRAM</div>
+            </div>
         </div>
-      </div>
+
+        <div class="col-md-4">
+            <div class="glass-card">
+                <div class="label-text">Jarak Sensor Stok</div>
+                <div class="value-text" id="stok">0</div>
+                <div class="unit-text">CENTIMETER</div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="glass-card">
+                <div class="label-text">Radar Gerakan</div>
+                <div class="value-text" id="gerakan" style="font-size: 2.5rem; margin-top: 30px;">--</div>
+            </div>
+        </div>
     </div>
 
-    <!-- Hardware info -->
-    <div class="sec-lbl">Konfigurasi perangkat</div>
-    <div class="hw-card">
-      <div class="pin-wrap">
-        <div class="pin-chip"><b>D5/D6</b> Ultrasonik</div>
-        <div class="pin-chip"><b>D7</b> PIR</div>
-        <div class="pin-chip"><b>D4</b> Servo</div>
-        <div class="pin-chip"><b>D8</b> Buzzer</div>
-        <div class="pin-chip"><b>D1/D2</b> HX711</div>
-        <div class="pin-chip"><b>D3/D0</b> LED</div>
-      </div>
-      <div class="hw-note">
-        WiFi: <b>Elelee</b> &nbsp;·&nbsp;
-        Kalibrasi: <b>385.70</b> &nbsp;·&nbsp;
-        Berat min: <b>30 g</b> &nbsp;·&nbsp;
-        Stok kritis: <b>&gt;24 cm</b> &nbsp;·&nbsp;
-        Interval: <b>1500 ms</b>
-      </div>
+    <div class="text-center mt-5 pt-4">
+        <button class="btn-glow" onclick="kirimPakan()" id="btn-feed">
+            ⏻ INIT FEED SEQUENCE
+        </button>
     </div>
+</div>
 
-  </div>
+<script>
+    // Konfigurasi API Blynk Kamu
+    const AUTH_TOKEN = "YEqlZS1zKnV1mDvUK2V-i97XXJXMYUY3";
+    const BASE_URL = "https://blynk.cloud/external/api";
 
-  <div class="footer">PetFeeder IoT · dibuat dengan ❤️ untuk peliharaanmu</div>
+    async function fetchData() {
+        try {
+            const [v1, v2, v3] = await Promise.all([
+                fetch(`${BASE_URL}/get?token=${AUTH_TOKEN}&V1`).then(r => r.text()),
+                fetch(`${BASE_URL}/get?token=${AUTH_TOKEN}&V2`).then(r => r.text()),
+                fetch(`${BASE_URL}/get?token=${AUTH_TOKEN}&V3`).then(r => r.text())
+            ]);
 
-  <script>
-    // ─── BLYNK CONFIG ───────────────────────────────────────────────
-    const BLYNK_TOKEN  = 'YEqlZS1zKnV1mDvUK2V-i97XXJXMYUY3';
-    const BLYNK_SERVER = 'https://blynk.cloud/external/api';
-    const INTERVAL_MS  = 2000;   // polling setiap 2 detik
+            // Update Angka
+            document.getElementById('berat').innerText = v1;
+            document.getElementById('stok').innerText = v2;
+            document.getElementById('gerakan').innerText = v3;
 
-    // Pin virtual sesuai kode Arduino
-    // V1 = berat, V2 = jarak/stok, V3 = gerakan (string), V5 = feed trigger
-    const PIN_BERAT  = 'V1';
-    const PIN_STOK   = 'V2';
-    const PIN_GERAK  = 'V3';
-    const PIN_FEED   = 'V5';
+            // Indikator Online
+            document.getElementById('status-update').innerText = "Sistem Online | Real-time Sync";
+            document.getElementById('online-dot').style.backgroundColor = "#00ff00";
+            document.getElementById('online-dot').style.boxShadow = "0 0 10px #00ff00";
 
-    // ─── STATE ──────────────────────────────────────────────────────
-    const beratHist = [];
-    const logs      = [];
-    let   isOnline  = false;
-    let   lastStokKritis = false;
-
-    // ─── UTILITY ────────────────────────────────────────────────────
-    function nowStr() {
-      return new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    }
-    function addLog(em, text) {
-      logs.unshift({ em, text, time: nowStr() });
-      if (logs.length > 30) logs.pop();
-      renderLog();
-    }
-    function renderLog() {
-      const el = document.getElementById('log-list');
-      el.innerHTML = logs.slice(0, 10).map(l =>
-        `<div class="log-row">
-          <span class="log-em">${l.em}</span>
-          <div>
-            <div class="log-t">${l.text}</div>
-            <div class="log-ts">${l.time}</div>
-          </div>
-        </div>`
-      ).join('');
-      document.getElementById('lcnt').textContent = logs.length + ' catatan';
-    }
-    function setOnline(val) {
-      isOnline = val;
-      const dot   = document.getElementById('blink-dot');
-      const label = document.getElementById('conn-label');
-      const pill  = document.getElementById('conn-label').closest('.online-pill');
-      if (val) {
-        dot.style.background   = '#43A047';
-        pill.style.background  = 'var(--green-lt)';
-        pill.style.borderColor = 'var(--green-bd)';
-        pill.style.color       = 'var(--green)';
-        label.textContent      = 'Online';
-        document.getElementById('err-banner').style.display = 'none';
-      } else {
-        dot.style.background   = '#E53935';
-        pill.style.background  = 'var(--red-lt)';
-        pill.style.borderColor = '#FFCDD2';
-        pill.style.color       = 'var(--red)';
-        label.textContent      = 'Offline';
-        document.getElementById('err-banner').style.display = 'block';
-      }
-    }
-
-    // ─── FETCH SATU PIN ─────────────────────────────────────────────
-    async function getPin(pin) {
-      const res = await fetch(`${BLYNK_SERVER}/get?token=${BLYNK_TOKEN}&${pin}`);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      return Array.isArray(data) ? data[0] : data;
-    }
-
-    // ─── UPDATE UI ──────────────────────────────────────────────────
-    function updateBerat(raw) {
-      const berat = parseFloat(raw) || 0;
-      document.getElementById('v-berat').textContent = Math.round(berat);
-      const pct = Math.min(Math.round((berat / 200) * 100), 100);
-      const bar = document.getElementById('pb');
-      const cb  = document.getElementById('cb');
-      bar.style.width = pct + '%';
-      if (berat < 30) {
-        bar.style.background = '#E53935';
-        cb.textContent = '⚠ Kosong';
-        cb.className   = 'chip chip-danger';
-      } else if (berat < 80) {
-        bar.style.background = '#FB8C00';
-        cb.textContent = 'Sedikit';
-        cb.className   = 'chip chip-warn';
-      } else {
-        bar.style.background = '#42A5F5';
-        cb.textContent = 'Normal';
-        cb.className   = 'chip chip-info';
-      }
-      beratHist.push(Math.round(berat));
-      if (beratHist.length > 20) beratHist.shift();
-      updateChart();
-    }
-
-    function updateStok(raw) {
-      const jarak = parseInt(raw) || 0;
-      document.getElementById('v-stok').textContent = jarak;
-      const pct  = Math.max(0, Math.min(Math.round(((40 - jarak) / 36) * 100), 100));
-      const bar  = document.getElementById('ps');
-      const cs   = document.getElementById('cs');
-      bar.style.width = pct + '%';
-      if (jarak > 24) {
-        bar.style.background = '#E53935';
-        cs.textContent = '⚠ Kritis!';
-        cs.className   = 'chip chip-danger';
-        if (!lastStokKritis) {
-          addLog('🚨', 'Stok pakan kritis! Jarak ' + jarak + 'cm — segera isi ulang');
-          lastStokKritis = true;
+        } catch (error) {
+            console.error("Gagal ambil data:", error);
+            document.getElementById('status-update').innerText = "Koneksi Terputus!";
+            document.getElementById('online-dot').style.backgroundColor = "#ff0000";
+            document.getElementById('online-dot').style.boxShadow = "0 0 10px #ff0000";
         }
-      } else if (jarak > 15) {
-        bar.style.background = '#FB8C00';
-        cs.textContent = 'Sedang';
-        cs.className   = 'chip chip-warn';
-        lastStokKritis = false;
-      } else {
-        bar.style.background = '#66BB6A';
-        cs.textContent = 'Penuh';
-        cs.className   = 'chip chip-ok';
-        lastStokKritis = false;
-      }
     }
 
-    function updateGerak(raw) {
-      const ada   = (typeof raw === 'string') ? raw.includes('ADA') : !!parseInt(raw);
-      const pico  = document.getElementById('pir-ico');
-      const pem   = document.getElementById('pir-em');
-      const pdesc = document.getElementById('pir-desc');
-      const av    = document.getElementById('av');
-      const mood  = document.getElementById('mood');
-      const pill  = document.getElementById('hero-pill');
-
-      const moods_idle   = ['Tidur siang zzz', 'Santai di sudut...', 'Menjilati bulu...'];
-      const moods_active = ['Lapar nih! 🍽️', 'Mengendus makanan...', 'Ada camilan? 👀'];
-
-      if (ada) {
-        pico.style.background = '#E8F5E9';
-        pem.textContent       = '🐾';
-        pdesc.textContent     = 'Hewan terdeteksi!';
-        av.textContent        = '🐱';
-        mood.textContent      = moods_active[Math.floor(Math.random() * moods_active.length)];
-        pill.textContent      = '● Aktif';
-        pill.style.background = '#E8F5E9';
-        pill.style.color      = '#2E7D32';
-        pill.style.borderColor= '#A5D6A7';
-      } else {
-        pico.style.background = '#F5F5F5';
-        pem.textContent       = '😴';
-        pdesc.textContent     = 'Tidak ada hewan terdeteksi';
-        av.textContent        = '😺';
-        mood.textContent      = moods_idle[Math.floor(Math.random() * moods_idle.length)];
-        pill.textContent      = '● Istirahat';
-        pill.style.background = 'var(--orange-lt)';
-        pill.style.color      = 'var(--orange-dk)';
-        pill.style.borderColor= 'var(--orange-bd)';
-      }
+    function kirimPakan() {
+        const btn = document.getElementById('btn-feed');
+        btn.innerText = "PROCESSING...";
+        
+        fetch(`${BASE_URL}/update?token=${AUTH_TOKEN}&V5=1`)
+            .then(() => {
+                setTimeout(() => {
+                    btn.innerText = "✔️ SUCCESS";
+                    setTimeout(() => {
+                        btn.innerText = "⏻ INIT FEED SEQUENCE";
+                    }, 2000);
+                }, 500);
+            })
+            .catch(() => {
+                alert("Gagal menghubungi server!");
+                btn.innerText = "⏻ INIT FEED SEQUENCE";
+            });
     }
 
-    function updateChart() {
-      const el  = document.getElementById('bars');
-      if (beratHist.length === 0) return;
-      const max = Math.max(...beratHist, 50);
-      el.innerHTML = beratHist.map((v, i) => {
-        const h     = Math.max(Math.round((v / max) * 100), 4);
-        const isNow = i === beratHist.length - 1;
-        return `<div class="bar${isNow ? ' now' : ''}" style="height:${h}%" title="${v}g"></div>`;
-      }).join('');
-      const avg = Math.round(beratHist.reduce((a, b) => a + b, 0) / beratHist.length);
-      document.getElementById('avg-chip').textContent = 'rata-rata ' + avg + ' g';
-    }
+    // Auto-update setiap 2.5 detik
+    setInterval(fetchData, 2500);
+    fetchData(); // Panggil pertama kali
+</script>
 
-    // ─── MAIN FETCH LOOP ─────────────────────────────────────────────
-    async function fetchAll() {
-      try {
-        const [rawBerat, rawStok, rawGerak] = await Promise.all([
-          getPin(PIN_BERAT),
-          getPin(PIN_STOK),
-          getPin(PIN_GERAK),
-        ]);
-        setOnline(true);
-        updateBerat(rawBerat);
-        updateStok(rawStok);
-        updateGerak(rawGerak);
-      } catch (e) {
-        setOnline(false);
-        console.error('Blynk fetch error:', e);
-      }
-    }
-
-    // ─── FEED (tulis V5 = 1 lalu reset ke 0) ─────────────────────────
-    async function doFeed() {
-      const btn  = document.getElementById('fbtn');
-      const lbl  = document.getElementById('flbl');
-      btn.classList.add('busy');
-      lbl.textContent = 'Mengisi pakan...';
-      btn.disabled    = true;
-      addLog('🍖', 'Perintah manual dikirim ke servo');
-      try {
-        await fetch(`${BLYNK_SERVER}/update?token=${BLYNK_TOKEN}&${PIN_FEED}=1`);
-        await new Promise(r => setTimeout(r, 2500));
-        await fetch(`${BLYNK_SERVER}/update?token=${BLYNK_TOKEN}&${PIN_FEED}=0`);
-        addLog('✅', 'Servo kembali ke 0°. Pakan selesai diisi.');
-      } catch (e) {
-        addLog('❌', 'Gagal mengirim perintah — periksa koneksi');
-      }
-      btn.classList.remove('busy');
-      lbl.textContent = 'Beri Makan Sekarang';
-      btn.disabled    = false;
-    }
-
-    // ─── CLOCK ──────────────────────────────────────────────────────
-    setInterval(() => {
-      document.getElementById('clock').textContent = nowStr();
-    }, 1000);
-
-    // ─── BOOT ───────────────────────────────────────────────────────
-    addLog('🟢', 'Dashboard dimuat · Menghubungkan ke Blynk...');
-    addLog('📡', 'WiFi target: Elelee · Token: ...MYUY3');
-    fetchAll();
-    setInterval(fetchAll, INTERVAL_MS);
-  </script>
 </body>
 </html>
