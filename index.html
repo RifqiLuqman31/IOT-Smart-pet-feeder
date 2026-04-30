@@ -4,174 +4,255 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Pet Feeder Pro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="[cdn.jsdelivr.net](https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css)" rel="stylesheet">
+    <link href="[fonts.googleapis.com](https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap)" rel="stylesheet">
     
     <style>
         :root {
-            --neon-cyan: #00f3ff;
-            --neon-pink: #ff00c8;
-            --dark-bg: #0a0e17;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.05);
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --accent: #22d3ee;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
         }
-
+        * {
+            box-sizing: border-box;
+        }
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--dark-bg);
-            /* Background efek cahaya neon */
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
             background-image: 
-                radial-gradient(circle at 15% 50%, rgba(0, 243, 255, 0.1), transparent 30%),
-                radial-gradient(circle at 85% 30%, rgba(255, 0, 200, 0.1), transparent 30%);
-            color: #fff;
+                radial-gradient(ellipse at top, rgba(99, 102, 241, 0.15), transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(34, 211, 238, 0.1), transparent 50%);
+            color: var(--text-primary);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            overflow-x: hidden;
+            padding: 2rem 1rem;
         }
-
-        /* Desain Kartu Efek Kaca (Glassmorphism) */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 2.5rem 1.5rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-            transition: all 0.4s ease;
-            height: 100%;
+        .container-main {
+            max-width: 900px;
+            margin: 0 auto;
         }
-
-        .glass-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 45px 0 rgba(0, 243, 255, 0.15);
-            border: 1px solid rgba(0, 243, 255, 0.3);
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
         }
-
-        /* Tipografi Teks Angka Glowing */
-        .value-text {
-            font-size: 4rem;
-            font-weight: 800;
-            background: -webkit-linear-gradient(45deg, var(--neon-cyan), var(--neon-pink));
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.75rem;
+        }
+        .logo span {
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
-            margin: 10px 0;
+            background-clip: text;
         }
-
-        .unit-text {
-            font-size: 1.2rem;
-            color: var(--neon-cyan);
-            font-weight: 600;
-        }
-
-        .label-text {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #8b9bb4;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-
-        /* Desain Tombol Hologram/Neon */
-        .btn-glow {
-            background: transparent;
-            color: var(--neon-cyan);
-            border: 2px solid var(--neon-cyan);
-            padding: 18px 50px;
-            font-size: 1.2rem;
-            font-weight: 800;
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 6px 14px;
             border-radius: 50px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: 0.4s;
-            cursor: pointer;
-            outline: none;
-            box-shadow: 0 0 15px transparent;
+            font-size: 0.8rem;
+            color: var(--success);
         }
-
-        .btn-glow:hover {
-            background: var(--neon-cyan);
-            color: var(--dark-bg);
-            box-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
-            transform: scale(1.05);
+        .status-badge.offline {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--danger);
         }
-
-        /* Animasi Lampu Status Indikator */
         .status-dot {
-            height: 12px;
-            width: 12px;
-            background-color: #00ff00;
+            width: 8px;
+            height: 8px;
+            background: currentColor;
             border-radius: 50%;
-            display: inline-block;
-            margin-right: 10px;
-            box-shadow: 0 0 10px #00ff00;
-            animation: pulse 1.5s infinite;
+            animation: blink 2s infinite;
         }
-
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 255, 0, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 0, 0); }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
         }
-
-        .status-text {
-            font-size: 0.9rem;
-            color: #8b9bb4;
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .metric-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        .metric-card:hover::before {
+            opacity: 1;
+        }
+        .metric-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        .metric-value {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .metric-unit {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        .metric-icon {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 40px;
+            height: 40px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+        /* Feed Button */
+        .feed-section {
+            text-align: center;
+        }
+        .btn-feed {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-feed:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+        }
+        .btn-feed:active {
+            transform: translateY(0);
+        }
+        .btn-feed.processing {
+            background: var(--bg-card);
+            box-shadow: none;
+            pointer-events: none;
+        }
+        .btn-feed.success {
+            background: linear-gradient(135deg, var(--success), #34d399);
+        }
+        /* Footer Info */
+        .footer-info {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .footer-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        /* Responsive */
+        @media (max-width: 576px) {
+            .metric-value {
+                font-size: 2.5rem;
+            }
+            
+            .btn-feed {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-
-<div class="container py-5">
-    <div class="text-center mb-5">
-        <h1 class="display-4 fw-bold text-white mb-3" style="letter-spacing: 2px;">
-            NEXUS <span style="color: var(--neon-cyan);">FEEDER</span>
-        </h1>
-        <div class="d-flex justify-content-center align-items-center">
+<div class="container-main">
+    <!-- Header -->
+    <header class="header">
+        <h1 class="logo">Nexus <span>Feeder</span></h1>
+        <div class="status-badge" id="status-badge">
             <span class="status-dot" id="online-dot"></span>
-            <span class="status-text" id="status-update">Menghubungkan ke satelit...</span>
+            <span id="status-update">Menghubungkan...</span>
+        </div>
+    </header>
+    <!-- Metric Cards -->
+    <div class="cards-grid">
+        <div class="metric-card">
+            <span class="metric-icon">🍽️</span>
+            <div class="metric-label">Sisa Piring</div>
+            <div class="metric-value" id="berat">--</div>
+            <div class="metric-unit">gram</div>
+        </div>
+        <div class="metric-card">
+            <span class="metric-icon">📡</span>
+            <div class="metric-label">Jarak Sensor Stok</div>
+            <div class="metric-value" id="stok">--</div>
+            <div class="metric-unit">cm</div>
+        </div>
+        <div class="metric-card">
+            <span class="metric-icon">🔍</span>
+            <div class="metric-label">Radar Gerakan</div>
+            <div class="metric-value" id="gerakan">--</div>
+            <div class="metric-unit">status</div>
         </div>
     </div>
-
-    <div class="row g-4 text-center">
-        <div class="col-md-4">
-            <div class="glass-card">
-                <div class="label-text">Sisa Piring</div>
-                <div class="value-text" id="berat">0</div>
-                <div class="unit-text">GRAM</div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="glass-card">
-                <div class="label-text">Jarak Sensor Stok</div>
-                <div class="value-text" id="stok">0</div>
-                <div class="unit-text">CENTIMETER</div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="glass-card">
-                <div class="label-text">Radar Gerakan</div>
-                <div class="value-text" id="gerakan" style="font-size: 2.5rem; margin-top: 30px;">--</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="text-center mt-5 pt-4">
-        <button class="btn-glow" onclick="kirimPakan()" id="btn-feed">
-            ⏻ INIT FEED SEQUENCE
+    <!-- Feed Button -->
+    <div class="feed-section">
+        <button class="btn-feed" onclick="kirimPakan()" id="btn-feed">
+            <span>▶</span> Mulai Feeding
         </button>
     </div>
+    <!-- Footer -->
+    <footer class="footer-info">
+        <p>Auto-sync setiap 2.5 detik • Blynk IoT</p>
+    </footer>
 </div>
-
 <script>
-    // Konfigurasi API Blynk Kamu
     const AUTH_TOKEN = "YEqlZS1zKnV1mDvUK2V-i97XXJXMYUY3";
-    const BASE_URL = "https://blynk.cloud/external/api";
-
+    const BASE_URL = "[blynk.cloud](https://blynk.cloud/external/api)";
     async function fetchData() {
         try {
             const [v1, v2, v3] = await Promise.all([
@@ -179,48 +260,42 @@
                 fetch(`${BASE_URL}/get?token=${AUTH_TOKEN}&V2`).then(r => r.text()),
                 fetch(`${BASE_URL}/get?token=${AUTH_TOKEN}&V3`).then(r => r.text())
             ]);
-
-            // Update Angka
             document.getElementById('berat').innerText = v1;
             document.getElementById('stok').innerText = v2;
             document.getElementById('gerakan').innerText = v3;
-
-            // Indikator Online
-            document.getElementById('status-update').innerText = "Sistem Online | Real-time Sync";
-            document.getElementById('online-dot').style.backgroundColor = "#00ff00";
-            document.getElementById('online-dot').style.boxShadow = "0 0 10px #00ff00";
-
+            document.getElementById('status-update').innerText = "Online";
+            document.getElementById('status-badge').classList.remove('offline');
         } catch (error) {
             console.error("Gagal ambil data:", error);
-            document.getElementById('status-update').innerText = "Koneksi Terputus!";
-            document.getElementById('online-dot').style.backgroundColor = "#ff0000";
-            document.getElementById('online-dot').style.boxShadow = "0 0 10px #ff0000";
+            document.getElementById('status-update').innerText = "Offline";
+            document.getElementById('status-badge').classList.add('offline');
         }
     }
-
     function kirimPakan() {
         const btn = document.getElementById('btn-feed');
-        btn.innerText = "PROCESSING...";
+        btn.innerHTML = "<span>⏳</span> Memproses...";
+        btn.classList.add('processing');
         
         fetch(`${BASE_URL}/update?token=${AUTH_TOKEN}&V5=1`)
             .then(() => {
                 setTimeout(() => {
-                    btn.innerText = "✔️ SUCCESS";
+                    btn.innerHTML = "<span>✓</span> Berhasil!";
+                    btn.classList.remove('processing');
+                    btn.classList.add('success');
                     setTimeout(() => {
-                        btn.innerText = "⏻ INIT FEED SEQUENCE";
+                        btn.innerHTML = "<span>▶</span> Mulai Feeding";
+                        btn.classList.remove('success');
                     }, 2000);
                 }, 500);
             })
             .catch(() => {
                 alert("Gagal menghubungi server!");
-                btn.innerText = "⏻ INIT FEED SEQUENCE";
+                btn.innerHTML = "<span>▶</span> Mulai Feeding";
+                btn.classList.remove('processing');
             });
     }
-
-    // Auto-update setiap 2.5 detik
     setInterval(fetchData, 2500);
-    fetchData(); // Panggil pertama kali
+    fetchData();
 </script>
-
 </body>
 </html>
