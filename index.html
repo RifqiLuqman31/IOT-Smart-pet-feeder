@@ -4,177 +4,252 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Pet Feeder</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0d0f12;
-            --surface: #161a20;
-            --surface-2: #1e232c;
-            --border: rgba(255,255,255,0.07);
-            --accent: #c8f03c;
-            --accent-dim: rgba(200,240,60,0.12);
-            --accent-glow: rgba(200,240,60,0.25);
-            --text: #e8edf5;
-            --muted: #5a6478;
-            --success: #c8f03c;
-            --danger: #ff5c5c;
-            --orange: #ff9a3c;
+            --bg:        #fff8f0;
+            --bg2:       #fff2e4;
+            --card:      #ffffff;
+            --orange:    #ff7a2f;
+            --orange-lt: #fff0e6;
+            --yellow:    #ffc93c;
+            --yellow-lt: #fff8e1;
+            --green:     #3ecf7a;
+            --green-lt:  #e8faf1;
+            --red:       #ff5c5c;
+            --red-lt:    #fff0f0;
+            --blue:      #3fa9f5;
+            --blue-lt:   #e8f4ff;
+            --text:      #2d2215;
+            --muted:     #a0907e;
+            --border:    #f0e4d4;
+            --shadow:    rgba(255,122,47,0.10);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Syne', sans-serif;
+            font-family: 'Nunito', sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
-            padding: 32px 24px;
-            overflow-x: hidden;
+            padding: 28px 20px 48px;
         }
 
-        /* BG grid */
         body::before {
             content: '';
             position: fixed;
             inset: 0;
-            background-image:
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 48px 48px;
+            background-image: radial-gradient(circle, #ffcfa0 1.5px, transparent 1.5px);
+            background-size: 32px 32px;
+            opacity: 0.35;
             pointer-events: none;
             z-index: 0;
         }
 
         .wrapper {
-            max-width: 960px;
+            max-width: 980px;
             margin: 0 auto;
             position: relative;
             z-index: 1;
         }
 
-        /* HEADER */
+        /* ── HEADER ────────────────────────────── */
         header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 48px;
+            align-items: center;
+            margin-bottom: 36px;
             flex-wrap: wrap;
             gap: 16px;
-            animation: fadeDown 0.6s ease both;
+            animation: fadeDown 0.5s ease both;
         }
 
         .brand {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
         }
 
         .brand-icon {
-            width: 48px;
-            height: 48px;
-            background: var(--accent);
-            border-radius: 12px;
+            width: 62px;
+            height: 62px;
+            background: var(--orange);
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 30px;
+            box-shadow: 0 6px 18px rgba(255,122,47,0.35);
             flex-shrink: 0;
+            animation: bounce 2.5s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-6px); }
         }
 
         .brand-text h1 {
-            font-size: 1.35rem;
-            font-weight: 800;
-            letter-spacing: -0.5px;
+            font-size: 1.6rem;
+            font-weight: 900;
             color: var(--text);
             line-height: 1.1;
+            letter-spacing: -0.5px;
         }
 
         .brand-text p {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.7rem;
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 0.8rem;
             color: var(--muted);
-            margin-top: 3px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            margin-top: 2px;
+            font-weight: 600;
         }
 
-        /* STATUS BADGE */
-        .status-badge {
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .indicator-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* ── WIFI CARD ──────────────────────────── */
+        .wifi-card {
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 100px;
-            padding: 8px 18px 8px 12px;
+            gap: 12px;
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 18px;
+            padding: 11px 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            transition: border-color 0.4s, background 0.4s;
+            min-width: 158px;
         }
 
-        .pulse-ring {
-            position: relative;
-            width: 10px;
-            height: 10px;
+        .wifi-card.connected {
+            border-color: #b6efd2;
+            background: var(--green-lt);
         }
 
-        .pulse-ring .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--muted);
-            position: absolute;
-            transition: 0.4s;
+        .wifi-card.disconnected {
+            border-color: #ffc5c5;
+            background: var(--red-lt);
         }
 
-        .pulse-ring .ring {
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            border: 2px solid var(--muted);
-            animation: none;
-            opacity: 0;
-            transition: 0.4s;
+        /* Animated wifi bars */
+        .wifi-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+            height: 22px;
+            padding-bottom: 1px;
         }
 
-        .pulse-ring.online .dot { background: var(--success); }
-        .pulse-ring.online .ring {
-            border-color: var(--success);
-            animation: ripple 1.8s infinite;
-            opacity: 1;
+        .wb {
+            width: 5px;
+            border-radius: 3px 3px 2px 2px;
+            background: #d8cfc7;
+            transition: background 0.4s;
         }
 
-        .pulse-ring.offline .dot { background: var(--danger); }
+        .wb1 { height: 7px; }
+        .wb2 { height: 13px; }
+        .wb3 { height: 20px; }
 
-        @keyframes ripple {
-            0% { transform: scale(1); opacity: 0.7; }
-            100% { transform: scale(2.8); opacity: 0; }
+        .wifi-card.connected .wb1 { background: var(--green); }
+        .wifi-card.connected .wb2 { background: var(--green); animation: wifiPop 1.8s 0.15s ease-in-out infinite; }
+        .wifi-card.connected .wb3 { background: var(--green); animation: wifiPop 1.8s 0.30s ease-in-out infinite; }
+        .wifi-card.disconnected .wb { background: var(--red); }
+
+        @keyframes wifiPop {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.4; }
         }
 
-        .status-label {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.72rem;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            color: var(--muted);
-            transition: 0.3s;
-        }
+        .wifi-info { line-height: 1.25; }
 
-        .status-badge.online .status-label { color: var(--success); }
-        .status-badge.offline .status-label { color: var(--danger); }
-
-        /* TIMESTAMP */
-        .timestamp {
-            font-family: 'DM Mono', monospace;
+        .wifi-label {
             font-size: 0.65rem;
+            font-weight: 800;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .wifi-status {
+            font-size: 0.88rem;
+            font-weight: 800;
+            color: var(--muted);
+            transition: color 0.4s;
+        }
+
+        .wifi-card.connected .wifi-status   { color: var(--green); }
+        .wifi-card.disconnected .wifi-status { color: var(--red); }
+
+        /* ── STATUS PILL ───────────────────────── */
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 100px;
+            padding: 8px 16px 8px 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            transition: border-color 0.4s;
+        }
+
+        .status-pill.online  { border-color: #b6efd2; }
+        .status-pill.offline { border-color: #ffc5c5; }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #d0c8bf;
+            transition: background 0.4s;
+            flex-shrink: 0;
+        }
+
+        .dot.online  { background: var(--green); box-shadow: 0 0 0 3px rgba(62,207,122,0.22); animation: dotPulse 1.6s infinite; }
+        .dot.offline { background: var(--red); }
+
+        @keyframes dotPulse {
+            0%,100% { box-shadow: 0 0 0 3px rgba(62,207,122,0.22); }
+            50%      { box-shadow: 0 0 0 6px rgba(62,207,122,0.06); }
+        }
+
+        .pill-text {
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--muted);
+            transition: color 0.4s;
+        }
+
+        .status-pill.online  .pill-text { color: var(--green); }
+        .status-pill.offline .pill-text { color: var(--red); }
+
+        .timestamp {
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 0.67rem;
             color: var(--muted);
             text-align: right;
-            margin-top: 4px;
         }
 
-        /* STAT CARDS */
+        /* ── CARDS GRID ────────────────────────── */
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-bottom: 20px;
+            gap: 18px;
+            margin-bottom: 18px;
         }
 
         @media (max-width: 640px) {
@@ -182,256 +257,296 @@
         }
 
         .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 36px 32px 32px;
-            min-height: 210px;
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 28px;
+            padding: 28px 28px 24px;
+            min-height: 220px;
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: border-color 0.3s, transform 0.3s;
-            animation: fadeUp 0.6s ease both;
+            box-shadow: 0 6px 20px var(--shadow);
+            transition: transform 0.25s, box-shadow 0.25s;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 14px 32px rgba(255,122,47,0.14);
         }
 
         .card:nth-child(1) { animation-delay: 0.1s; }
         .card:nth-child(2) { animation-delay: 0.2s; }
         .card:nth-child(3) { animation-delay: 0.3s; }
 
-        .card:hover {
-            border-color: rgba(200,240,60,0.3);
-            transform: translateY(-3px);
-        }
-
-        .card::before {
+        .card::after {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(200,240,60,0.4), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
+            bottom: -22px; right: -22px;
+            width: 88px; height: 88px;
+            border-radius: 50%;
+            opacity: 0.1;
         }
-        .card:hover::before { opacity: 1; }
 
-        .card-tag {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            font-weight: 500;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
+        .card-weight::after { background: var(--orange); }
+        .card-depth::after  { background: var(--blue); }
+        .card-motion::after { background: var(--green); }
+
+        .card-header {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 20px;
+            justify-content: space-between;
         }
 
-        .card-tag span {
-            width: 20px;
-            height: 1px;
-            background: var(--muted);
-            display: inline-block;
+        .card-label {
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
         }
+
+        .card-emoji {
+            width: 44px; height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .card-weight .card-emoji { background: var(--orange-lt); }
+        .card-depth  .card-emoji { background: var(--blue-lt); }
+        .card-motion .card-emoji { background: var(--green-lt); }
+
+        .card-body { margin-top: 10px; }
 
         .card-value {
-            font-size: 3.8rem;
-            font-weight: 800;
+            font-size: 3.6rem;
+            font-weight: 900;
             line-height: 1;
-            letter-spacing: -3px;
+            letter-spacing: -2px;
             color: var(--text);
             transition: color 0.3s;
-            margin: 12px 0 8px;
         }
 
         .card-unit {
-            display: block;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.72rem;
-            color: var(--muted);
-            margin-top: 8px;
-            letter-spacing: 1px;
-        }
-
-        /* Motion card special */
-        .motion-active .card-value {
-            color: var(--accent) !important;
-        }
-
-        .motion-indicator {
             display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: var(--muted);
-            border-radius: 50%;
-            margin-right: 6px;
-            vertical-align: middle;
-            transition: 0.3s;
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--muted);
+            margin-left: 4px;
         }
 
-        .motion-active .motion-indicator {
-            background: var(--accent);
-            box-shadow: 0 0 12px var(--accent);
-            animation: blink 1s infinite;
+        .card-sub {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--muted);
+            margin-top: 6px;
         }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+        .card-motion.active .card-value { color: var(--green); }
+        .card-motion.active .card-emoji {
+            background: var(--green-lt);
+            animation: wiggle 0.6s ease-in-out infinite;
         }
 
-        /* PROGRESS BAR SECTION */
+        @keyframes wiggle {
+            0%,100% { transform: rotate(0deg); }
+            25%      { transform: rotate(-8deg); }
+            75%      { transform: rotate(8deg); }
+        }
+
+        .paw-deco {
+            position: absolute;
+            font-size: 1.1rem;
+            opacity: 0.07;
+            user-select: none;
+        }
+
+        /* ── PROGRESS ──────────────────────────── */
         .progress-section {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 32px 36px;
-            margin-bottom: 20px;
-            animation: fadeUp 0.6s 0.35s ease both;
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 28px;
+            padding: 28px 32px;
+            margin-bottom: 18px;
+            box-shadow: 0 6px 20px var(--shadow);
+            animation: fadeUp 0.5s 0.35s ease both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-section::before {
+            content: '🦴';
+            position: absolute;
+            right: 28px; top: 50%;
+            transform: translateY(-50%);
+            font-size: 2.8rem;
+            opacity: 0.08;
         }
 
         .progress-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         .progress-label {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
+            font-size: 0.88rem;
+            font-weight: 800;
+            color: var(--text);
         }
 
         .progress-pct {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.75rem;
-            color: var(--accent);
-            font-weight: 500;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--orange);
         }
 
         .progress-track {
-            height: 10px;
-            background: var(--surface-2);
+            height: 14px;
+            background: var(--bg2);
             border-radius: 100px;
             overflow: hidden;
+            border: 2px solid var(--border);
         }
 
         .progress-fill {
             height: 100%;
-            background: var(--accent);
+            background: linear-gradient(90deg, var(--yellow), var(--orange));
             border-radius: 100px;
             transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 12px var(--accent-glow);
+            box-shadow: 0 0 10px rgba(255,122,47,0.25);
             width: 0%;
+            position: relative;
         }
 
-        /* FEED BUTTON AREA */
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: 0; top: 0; bottom: 0;
+            width: 20px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 0 100px 100px 0;
+        }
+
+        /* ── FEED SECTION ──────────────────────── */
         .feed-section {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 36px;
+            background: var(--orange);
+            border-radius: 28px;
+            padding: 32px 36px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 24px;
             flex-wrap: wrap;
-            animation: fadeUp 0.6s 0.45s ease both;
-        }
-
-        .feed-info h2 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        .feed-info p {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.72rem;
-            color: var(--muted);
-            letter-spacing: 0.5px;
-        }
-
-        .btn-feed {
-            background: var(--accent);
-            color: #0d0f12;
-            border: none;
-            padding: 18px 44px;
-            font-family: 'Syne', sans-serif;
-            font-size: 1rem;
-            font-weight: 700;
-            border-radius: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
+            box-shadow: 0 8px 28px rgba(255,122,47,0.35);
+            margin-bottom: 18px;
+            animation: fadeUp 0.5s 0.45s ease both;
             position: relative;
             overflow: hidden;
-            flex-shrink: 0;
         }
 
-        .btn-feed::before {
+        .feed-section::before {
             content: '';
             position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0);
-            transition: 0.2s;
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            top: -60px; right: -40px;
         }
 
-        .btn-feed:hover:not(:disabled)::before {
-            background: rgba(0,0,0,0.1);
+        .feed-section::after {
+            content: '';
+            position: absolute;
+            width: 100px; height: 100px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            bottom: -30px; left: 200px;
         }
 
-        .btn-feed:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px var(--accent-glow);
+        .feed-text { position: relative; z-index: 1; }
+
+        .feed-text h2 {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 4px;
         }
 
-        .btn-feed:active:not(:disabled) {
-            transform: scale(0.97);
+        .feed-text p {
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.8);
+            font-weight: 600;
         }
 
-        .btn-feed:disabled {
-            background: var(--surface-2);
-            color: var(--muted);
-            cursor: not-allowed;
-        }
-
-        /* STATUS HINT */
         .hint-pill {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.68rem;
-            color: var(--muted);
-            background: var(--surface-2);
+            gap: 6px;
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.85);
+            background: rgba(255,255,255,0.18);
             border-radius: 100px;
-            padding: 5px 14px;
-            margin-top: 10px;
-            transition: 0.3s;
+            padding: 6px 14px;
+            margin-top: 12px;
         }
 
-        .hint-pill.success { color: var(--success); }
-        .hint-pill.loading { color: var(--orange); }
-        .hint-pill.error { color: var(--danger); }
+        .hint-pill.success { background: rgba(255,255,255,0.3); color: #fff; }
+        .hint-pill.error   { background: rgba(180,0,0,0.25); }
 
-        /* LOG SECTION */
-        .log-section {
-            margin-top: 20px;
-            animation: fadeUp 0.6s 0.55s ease both;
+        .btn-feed {
+            background: #fff;
+            color: var(--orange);
+            border: none;
+            padding: 17px 40px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1rem;
+            font-weight: 900;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.10);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
         }
+
+        .btn-feed:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 8px 22px rgba(0,0,0,0.15);
+        }
+
+        .btn-feed:active:not(:disabled) { transform: scale(0.97); }
+
+        .btn-feed:disabled {
+            background: rgba(255,255,255,0.45);
+            color: rgba(255,122,47,0.45);
+            cursor: not-allowed;
+        }
+
+        /* ── LOG ───────────────────────────────── */
+        .log-section { animation: fadeUp 0.5s 0.55s ease both; }
 
         .log-title {
-            font-family: 'DM Mono', monospace;
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
+            font-size: 0.8rem;
+            font-weight: 800;
             color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
             margin-bottom: 12px;
             display: flex;
             align-items: center;
@@ -441,108 +556,145 @@
         .log-title::after {
             content: '';
             flex: 1;
-            height: 1px;
+            height: 2px;
             background: var(--border);
+            border-radius: 2px;
         }
 
-        .log-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
+        .log-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
 
         .log-item {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 10px 16px;
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 12px 18px;
             display: flex;
             align-items: center;
             gap: 12px;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.7rem;
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 0.8rem;
             animation: slideIn 0.3s ease;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.03);
         }
 
-        .log-time { color: var(--muted); flex-shrink: 0; }
-        .log-msg { color: var(--text); }
         .log-dot {
-            width: 6px; height: 6px;
+            width: 8px; height: 8px;
             border-radius: 50%;
-            background: var(--accent);
+            background: var(--muted);
             flex-shrink: 0;
         }
-        .log-dot.info { background: var(--muted); }
-        .log-dot.warn { background: var(--orange); }
-        .log-dot.err { background: var(--danger); }
 
-        /* ANIMATIONS */
+        .log-dot.ok   { background: var(--green); }
+        .log-dot.warn { background: var(--yellow); }
+        .log-dot.err  { background: var(--red); }
+
+        .log-time { color: var(--muted); flex-shrink: 0; font-weight: 700; }
+        .log-msg  { color: var(--text); font-weight: 600; }
+
+        /* ── ANIMATIONS ────────────────────────── */
         @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(22px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes fadeDown {
             from { opacity: 0; transform: translateY(-16px); }
-            to { opacity: 1; transform: translateY(0); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-10px); }
-            to { opacity: 1; transform: translateX(0); }
+            from { opacity: 0; transform: translateX(-12px); }
+            to   { opacity: 1; transform: translateX(0); }
         }
     </style>
 </head>
 <body>
 <div class="wrapper">
 
-    <!-- HEADER -->
+    <!-- ── HEADER ───────────────────────────────── -->
     <header>
         <div class="brand">
             <div class="brand-icon">🐾</div>
             <div class="brand-text">
                 <h1>Smart Pet Feeder</h1>
-                <p>Real-time monitoring system</p>
+                <p>Dashboard Monitoring Real-time</p>
             </div>
         </div>
-        <div>
-            <div class="status-badge" id="status-badge">
-                <div class="pulse-ring" id="pulse-ring">
-                    <div class="dot"></div>
-                    <div class="ring"></div>
+
+        <div class="header-right">
+            <div class="indicator-row">
+                <!-- WiFi Indicator -->
+                <div class="wifi-card" id="wifi-card">
+                    <div class="wifi-bars">
+                        <div class="wb wb1"></div>
+                        <div class="wb wb2"></div>
+                        <div class="wb wb3"></div>
+                    </div>
+                    <div class="wifi-info">
+                        <div class="wifi-label">WiFi</div>
+                        <div class="wifi-status" id="wifi-status">Menghubungkan...</div>
+                    </div>
                 </div>
-                <span class="status-label" id="status-label">Menghubungkan...</span>
+
+                <!-- Status pill -->
+                <div class="status-pill" id="status-pill">
+                    <div class="dot" id="status-dot"></div>
+                    <span class="pill-text" id="status-label">Menunggu...</span>
+                </div>
             </div>
-            <div class="timestamp" id="timestamp">--:--:--</div>
+            <div class="timestamp" id="timestamp">Belum ada data</div>
         </div>
     </header>
 
-    <!-- STAT CARDS -->
+    <!-- ── STAT CARDS ───────────────────────────── -->
     <div class="cards-grid">
-        <div class="card">
-            <div class="card-tag"><span></span> Wadah Pakan</div>
-            <div class="card-value" id="berat">—</div>
-            <span class="card-unit">GRAM TERSISA</span>
-        </div>
-        <div class="card">
-            <div class="card-tag"><span></span> Level Stok</div>
-            <div class="card-value" id="stok">—</div>
-            <span class="card-unit">CM KEDALAMAN</span>
-        </div>
-        <div class="card" id="motion-card">
-            <div class="card-tag"><span></span> Aktivitas</div>
-            <div class="card-value" id="gerakan" style="font-size:2rem; letter-spacing:-0.5px; margin-top:auto;">
-                <span class="motion-indicator"></span>Memuat...
+        <div class="card card-weight">
+            <span class="paw-deco" style="top:10px;left:10px;">🐾</span>
+            <div class="card-header">
+                <span class="card-label">Sisa Pakan</span>
+                <div class="card-emoji">🍖</div>
             </div>
-            <span class="card-unit" id="motion-sub">SENSOR PIR</span>
+            <div class="card-body">
+                <div>
+                    <span class="card-value" id="berat">—</span>
+                    <span class="card-unit">gram</span>
+                </div>
+                <div class="card-sub">Berat di wadah pakan</div>
+            </div>
+        </div>
+
+        <div class="card card-depth">
+            <span class="paw-deco" style="bottom:14px;left:12px;">🐾</span>
+            <div class="card-header">
+                <span class="card-label">Level Stok</span>
+                <div class="card-emoji">📦</div>
+            </div>
+            <div class="card-body">
+                <div>
+                    <span class="card-value" id="stok">—</span>
+                    <span class="card-unit">cm</span>
+                </div>
+                <div class="card-sub">Kedalaman stok pakan</div>
+            </div>
+        </div>
+
+        <div class="card card-motion" id="motion-card">
+            <span class="paw-deco" style="top:10px;right:10px;">🐾</span>
+            <div class="card-header">
+                <span class="card-label">Aktivitas Hewan</span>
+                <div class="card-emoji" id="motion-emoji">🐶</div>
+            </div>
+            <div class="card-body">
+                <div class="card-value" id="gerakan" style="font-size:2rem; letter-spacing:-0.5px; line-height:1.3;">Memuat...</div>
+                <div class="card-sub" id="motion-sub">Sensor gerak PIR</div>
+            </div>
         </div>
     </div>
 
-    <!-- PROGRESS BAR -->
+    <!-- ── PROGRESS ──────────────────────────────── -->
     <div class="progress-section">
         <div class="progress-header">
-            <span class="progress-label">Estimasi Kapasitas Pakan</span>
+            <span class="progress-label">🍽️ Estimasi Kapasitas Pakan</span>
             <span class="progress-pct" id="pct-label">—%</span>
         </div>
         <div class="progress-track">
@@ -550,25 +702,21 @@
         </div>
     </div>
 
-    <!-- FEED BUTTON -->
+    <!-- ── FEED BUTTON ────────────────────────────── -->
     <div class="feed-section">
-        <div>
-            <div class="feed-info">
-                <h2>Beri Pakan Manual</h2>
-                <p>Aktifkan servo untuk mengeluarkan pakan sekarang</p>
-            </div>
-            <div class="hint-pill" id="hint-pill">
-                ⬡ Menunggu perintah
-            </div>
+        <div class="feed-text">
+            <h2>🥣 Beri Makan Sekarang</h2>
+            <p>Tekan tombol untuk mengaktifkan servo dan mengeluarkan pakan</p>
+            <div class="hint-pill" id="hint-pill">⏳ Menunggu perintah</div>
         </div>
         <button class="btn-feed" id="btn-feed" onclick="kirimPakan()">
-            ▶ Beri Pakan
+            <span>▶</span> Beri Pakan
         </button>
     </div>
 
-    <!-- LOG -->
+    <!-- ── LOG ───────────────────────────────────── -->
     <div class="log-section">
-        <div class="log-title">Activity Log</div>
+        <div class="log-title">🐾 Riwayat Aktivitas</div>
         <ul class="log-list" id="log-list"></ul>
     </div>
 
@@ -577,10 +725,9 @@
 <script>
     const AUTH_TOKEN = "YEqlZS1zKnV1mDvUK2V-i97XXJXMYUY3";
     const BASE_URL   = "https://blynk.cloud/external/api";
-    const MAX_BERAT  = 500; // gram maks untuk progress bar (sesuaikan)
+    const MAX_BERAT  = 500;
 
-    /* ─── LOG ─────────────────────────────────────────── */
-    function addLog(msg, type = 'info') {
+    function addLog(msg, type = 'ok') {
         const list = document.getElementById('log-list');
         const now  = new Date().toLocaleTimeString('id-ID', {hour12: false});
         const li   = document.createElement('li');
@@ -591,24 +738,37 @@
             <span class="log-msg">${msg}</span>
         `;
         list.prepend(li);
-        // Maks 6 log
         while (list.children.length > 6) list.removeChild(list.lastChild);
     }
 
-    /* ─── HINT PILL ───────────────────────────────────── */
     function setHint(msg, type = '') {
         const el = document.getElementById('hint-pill');
         el.className = 'hint-pill ' + type;
         el.textContent = msg;
     }
 
-    /* ─── TIMESTAMP ───────────────────────────────────── */
-    function updateTimestamp() {
-        document.getElementById('timestamp').textContent =
-            'Update: ' + new Date().toLocaleTimeString('id-ID', {hour12: false});
+    function setOnline(isOnline) {
+        const wifiCard  = document.getElementById('wifi-card');
+        const wifiStat  = document.getElementById('wifi-status');
+        const pill      = document.getElementById('status-pill');
+        const dot       = document.getElementById('status-dot');
+        const label     = document.getElementById('status-label');
+
+        if (isOnline) {
+            wifiCard.className   = 'wifi-card connected';
+            wifiStat.textContent = 'Tersambung';
+            pill.className       = 'status-pill online';
+            dot.className        = 'dot online';
+            label.textContent    = 'Online';
+        } else {
+            wifiCard.className   = 'wifi-card disconnected';
+            wifiStat.textContent = 'Terputus';
+            pill.className       = 'status-pill offline';
+            dot.className        = 'dot offline';
+            label.textContent    = 'Offline';
+        }
     }
 
-    /* ─── FETCH DATA ──────────────────────────────────── */
     async function fetchData() {
         try {
             const [v1, v2, v3] = await Promise.all([
@@ -621,83 +781,73 @@
             const stok  = parseFloat(v2) || 0;
             const gerak = v3.trim();
 
-            // Update cards
             document.getElementById('berat').textContent = berat;
             document.getElementById('stok').textContent  = stok;
 
-            // Progress bar
             const pct = Math.min(100, Math.round((berat / MAX_BERAT) * 100));
             document.getElementById('progress-fill').style.width = pct + '%';
             document.getElementById('pct-label').textContent = pct + '%';
 
-            // Motion
-            const motionCard = document.getElementById('motion-card');
-            const motionEl   = document.getElementById('gerakan');
-            const motionSub  = document.getElementById('motion-sub');
+            const motionCard  = document.getElementById('motion-card');
+            const motionEl    = document.getElementById('gerakan');
+            const motionSub   = document.getElementById('motion-sub');
+            const motionEmoji = document.getElementById('motion-emoji');
+
             if (gerak === "1") {
-                motionCard.classList.add('motion-active');
-                motionEl.innerHTML = '<span class="motion-indicator"></span>Ada Aktivitas';
-                motionSub.textContent = 'HEWAN TERDETEKSI';
+                motionCard.classList.add('active');
+                motionEl.textContent    = 'Ada Aktivitas!';
+                motionSub.textContent   = '🐾 Hewan terdeteksi di area makan';
+                motionEmoji.textContent = '🐾';
             } else {
-                motionCard.classList.remove('motion-active');
-                motionEl.innerHTML = '<span class="motion-indicator"></span>Siaga';
-                motionSub.textContent = 'TIDAK ADA AKTIVITAS';
+                motionCard.classList.remove('active');
+                motionEl.textContent    = 'Siaga';
+                motionSub.textContent   = 'Tidak ada aktivitas';
+                motionEmoji.textContent = '🐶';
             }
 
-            // Status online
-            const badge = document.getElementById('status-badge');
-            const ring  = document.getElementById('pulse-ring');
-            badge.className = 'status-badge online';
-            ring.className  = 'pulse-ring online';
-            document.getElementById('status-label').textContent = 'Terhubung';
-
-            updateTimestamp();
+            setOnline(true);
+            document.getElementById('timestamp').textContent =
+                'Diperbarui pukul ' + new Date().toLocaleTimeString('id-ID', {hour12: false});
 
         } catch (err) {
             console.error(err);
-            const badge = document.getElementById('status-badge');
-            const ring  = document.getElementById('pulse-ring');
-            badge.className = 'status-badge offline';
-            ring.className  = 'pulse-ring offline';
-            document.getElementById('status-label').textContent = 'Terputus';
+            setOnline(false);
             addLog('Gagal mengambil data dari server.', 'err');
         }
     }
 
-    /* ─── FEED COMMAND ────────────────────────────────── */
     async function kirimPakan() {
         const btn = document.getElementById('btn-feed');
         btn.disabled = true;
-        btn.textContent = '⏳ Mengirim...';
-        setHint('⬡ Menghubungi kontroler...', 'loading');
-        addLog('Perintah pakan dikirim ke perangkat.', 'warn');
+        btn.innerHTML = '<span>⏳</span> Mengirim...';
+        setHint('🔄 Menghubungi kontroler pakan...', 'loading');
+        addLog('Perintah makan dikirim ke perangkat.', 'warn');
 
         try {
             await fetch(`${BASE_URL}/update?token=${AUTH_TOKEN}&V5=1`);
             await new Promise(r => setTimeout(r, 900));
 
-            btn.textContent = '✓ Berhasil!';
-            setHint('✓ Pakan berhasil dikeluarkan', 'success');
-            addLog('Servo aktif — pakan telah dikeluarkan.', 'info');
+            btn.innerHTML = '<span>✅</span> Berhasil!';
+            setHint('✅ Pakan berhasil dikeluarkan!', 'success');
+            addLog('Servo aktif — pakan telah dikeluarkan untuk hewan kesayangan! 🐾', 'ok');
 
             setTimeout(() => {
                 btn.disabled = false;
-                btn.textContent = '▶ Beri Pakan';
-                setHint('⬡ Siap untuk pemberian berikutnya', '');
+                btn.innerHTML = '<span>▶</span> Beri Pakan';
+                setHint('⏳ Siap untuk pemberian berikutnya', '');
             }, 3000);
 
         } catch(e) {
             btn.disabled = false;
-            btn.textContent = '▶ Coba Lagi';
-            setHint('✕ Gagal terhubung ke perangkat', 'error');
+            btn.innerHTML = '<span>▶</span> Coba Lagi';
+            setHint('❌ Gagal terhubung ke perangkat', 'error');
             addLog('Error: koneksi ke feeder gagal.', 'err');
         }
     }
 
-    // Jalankan
     fetchData();
     setInterval(fetchData, 2000);
-    addLog('Dashboard dimulai.', 'info');
+    addLog('Dashboard berhasil dimuat! 🐾', 'ok');
 </script>
 </body>
 </html>
