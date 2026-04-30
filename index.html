@@ -15,6 +15,7 @@
             --text-main: #1e293b;
             --text-muted: #64748b;
             --success: #10b981;
+            --danger: #ef4444;
         }
 
         body {
@@ -31,6 +32,7 @@
             margin: 40px auto;
         }
 
+        /* Header */
         .header-section {
             margin-bottom: 40px;
         }
@@ -42,6 +44,7 @@
             color: var(--text-main);
         }
 
+        /* Status Connection Pill */
         .status-pill {
             display: inline-flex;
             align-items: center;
@@ -68,12 +71,19 @@
             box-shadow: 0 0 8px var(--success);
         }
 
+        .status-dot.offline {
+            background-color: var(--danger);
+            box-shadow: 0 0 8px var(--danger);
+        }
+
+        /* Stat Cards */
         .stat-card {
             background: var(--card-bg);
             border: 1px solid #e2e8f0;
             border-radius: 20px;
             padding: 30px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
         }
 
         .stat-card:hover {
@@ -106,11 +116,24 @@
             margin-left: 4px;
         }
 
+        /* Feedback for Motion Sensor */
+        .motion-detected {
+            color: var(--success) !important;
+            animation: pulse-text 1.5s infinite;
+        }
+
+        @keyframes pulse-text {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        /* Action Button */
         .btn-feed {
             background: var(--text-main);
             color: #fff;
             border: none;
-            padding: 16px 40px;
+            padding: 16px 48px;
             font-size: 1rem;
             font-weight: 600;
             border-radius: 14px;
@@ -118,13 +141,20 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        .btn-feed:hover {
+        .btn-feed:hover:not(:disabled) {
             background: #000;
             transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
         }
 
-        .btn-feed:active {
+        .btn-feed:active:not(:disabled) {
             transform: scale(0.98);
+        }
+
+        .btn-feed:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -134,7 +164,7 @@
     <div class="header-section d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
             <h1 class="mb-1">Smart Pet Feeder</h1>
-            <p class="text-muted mb-0 small">Sistem monitoring dan pemberian pakan otomatis</p>
+            <p class="text-muted mb-0 small">Dashboard Monitoring Real-time</p>
         </div>
         <div class="status-pill">
             <span class="status-dot" id="online-dot"></span>
@@ -145,17 +175,17 @@
     <div class="row g-4">
         <div class="col-md-4">
             <div class="stat-card">
-                <span class="stat-label">Sisa di Piring</span>
+                <span class="stat-label">Sisa di Wadah</span>
                 <div class="d-flex align-items-baseline">
                     <span class="stat-value" id="berat">0</span>
-                    <span class="stat-unit">g</span>
+                    <span class="stat-unit">gram</span>
                 </div>
             </div>
         </div>
 
         <div class="col-md-4">
             <div class="stat-card">
-                <span class="stat-label">Level Stok</span>
+                <span class="stat-label">Level Kedalaman</span>
                 <div class="d-flex align-items-baseline">
                     <span class="stat-value" id="stok">0</span>
                     <span class="stat-unit">cm</span>
@@ -165,8 +195,10 @@
 
         <div class="col-md-4">
             <div class="stat-card">
-                <span class="stat-label">Radar Aktivitas</span>
-                <div class="stat-value" id="gerakan" style="font-size: 1.5rem;">--</div>
+                <span class="stat-label">Status Aktivitas</span>
+                <div class="stat-value" id="gerakan" style="font-size: 1.5rem; margin-top: 5px;">
+                    Memuat...
+                </div>
             </div>
         </div>
     </div>
@@ -175,59 +207,96 @@
         <button class="btn-feed" onclick="kirimPakan()" id="btn-feed">
             Beri Pakan Sekarang
         </button>
-        <p class="mt-3 text-muted small">Instruksi akan dikirim langsung ke modul servo perangkat.</p>
+        <div id="action-hint" class="mt-3 text-muted small">
+            Menunggu perintah...
+        </div>
     </div>
 </div>
 
 <script>
+    // Konfigurasi Blynk
     const AUTH_TOKEN = "YEqlZS1zKnV1mDvUK2V-i97XXJXMYUY3";
     const BASE_URL = "https://blynk.cloud/external/api";
 
+    /**
+     * Fungsi untuk mengambil data dari sensor
+     */
     async function fetchData() {
         try {
+            // Ambil V1 (Berat), V2 (Stok), V3 (Gerakan)
             const [v1, v2, v3] = await Promise.all([
                 fetch(`${BASE_URL}/get?token=${AUTH_TOKEN}&V1`).then(r => r.text()),
                 fetch(`${BASE_URL}/get?token=${AUTH_TOKEN}&V2`).then(r => r.text()),
                 fetch(`${BASE_URL}/get?token=${AUTH_TOKEN}&V3`).then(r => r.text())
             ]);
 
+            // Update UI Berat & Stok
             document.getElementById('berat').innerText = v1;
             document.getElementById('stok').innerText = v2;
-            document.getElementById('gerakan').innerText = v3 == "1" ? "Terdeteksi" : "Siaga";
 
+            // Update UI Gerakan (Perbaikan Logika)
+            const motionVal = v3.trim();
+            const motionEl = document.getElementById('gerakan');
+            
+            // Cek jika nilainya adalah "1" (sebagai string atau angka)
+            if (motionVal === "1") {
+                motionEl.innerText = "ADA AKTIVITAS";
+                motionEl.classList.add('motion-detected');
+            } else {
+                motionEl.innerText = "Siaga";
+                motionEl.classList.remove('motion-detected');
+                motionEl.style.color = "var(--text-main)";
+            }
+
+            // Update Status Koneksi
             document.getElementById('status-update').innerText = "Terhubung";
-            document.getElementById('online-dot').classList.add('online');
+            document.getElementById('online-dot').className = "status-dot online";
 
         } catch (error) {
+            console.error("Fetch error:", error);
             document.getElementById('status-update').innerText = "Terputus";
-            document.getElementById('online-dot').classList.remove('online');
+            document.getElementById('online-dot').className = "status-dot offline";
         }
     }
 
+    /**
+     * Fungsi untuk menggerakkan servo (V5)
+     */
     function kirimPakan() {
         const btn = document.getElementById('btn-feed');
-        const originalText = btn.innerText;
+        const hint = document.getElementById('action-hint');
+        
         btn.disabled = true;
-        btn.innerText = "Memproses...";
+        btn.innerText = "Mengirim Sinyal...";
+        hint.innerText = "Menghubungkan ke kontroler pakan...";
         
         fetch(`${BASE_URL}/update?token=${AUTH_TOKEN}&V5=1`)
             .then(() => {
+                // Beri jeda sedikit agar terlihat prosesnya
                 setTimeout(() => {
-                    btn.innerText = "Berhasil Terkirim";
+                    btn.innerText = "Berhasil!";
+                    hint.innerText = "Pakan telah dikeluarkan.";
+                    
+                    // Reset tombol setelah 3 detik
                     setTimeout(() => {
                         btn.disabled = false;
-                        btn.innerText = originalText;
-                    }, 2000);
-                }, 800);
+                        btn.innerText = "Beri Pakan Sekarang";
+                        hint.innerText = "Siap untuk pemberian berikutnya.";
+                    }, 3000);
+                }, 1000);
             })
             .catch(() => {
-                alert("Gagal mengirim perintah!");
+                alert("Gagal terhubung ke modul Smart Feeder!");
                 btn.disabled = false;
-                btn.innerText = originalText;
+                btn.innerText = "Coba Lagi";
+                hint.innerText = "Terjadi gangguan koneksi.";
             });
     }
 
-    setInterval(fetchData, 2500);
+    // Interval Update (setiap 2 detik agar lebih responsif)
+    setInterval(fetchData, 2000);
+    
+    // Jalankan sekali saat pertama buka
     fetchData();
 </script>
 
