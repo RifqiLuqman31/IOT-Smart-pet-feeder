@@ -3,172 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Pet Feeder Pro</title>
+    <title>Nexus Feeder | Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --neon-cyan: #00f3ff;
-            --neon-pink: #ff00c8;
-            --dark-bg: #0a0e17;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.05);
+            --primary-accent: #6366f1; /* Indigo lembut */
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --success: #10b981;
         }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--dark-bg);
-            /* Background efek cahaya neon */
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(0, 243, 255, 0.1), transparent 30%),
-                radial-gradient(circle at 85% 30%, rgba(255, 0, 200, 0.1), transparent 30%);
-            color: #fff;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             min-height: 100vh;
-            display: flex;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .main-container {
+            max-width: 1000px;
+            margin: 40px auto;
+        }
+
+        /* Header Styling */
+        .header-section {
+            margin-bottom: 40px;
+        }
+
+        .header-section h1 {
+            font-weight: 700;
+            letter-spacing: -1px;
+            font-size: 1.75rem;
+            color: var(--text-main);
+        }
+
+        /* Status Pill */
+        .status-pill {
+            display: inline-flex;
             align-items: center;
-            overflow-x: hidden;
+            background: #fff;
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            border: 1px solid #e2e8f0;
         }
 
-        /* Desain Kartu Efek Kaca (Glassmorphism) */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 2.5rem 1.5rem;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-            transition: all 0.4s ease;
-            height: 100%;
-        }
-
-        .glass-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 45px 0 rgba(0, 243, 255, 0.15);
-            border: 1px solid rgba(0, 243, 255, 0.3);
-        }
-
-        /* Tipografi Teks Angka Glowing */
-        .value-text {
-            font-size: 4rem;
-            font-weight: 800;
-            background: -webkit-linear-gradient(45deg, var(--neon-cyan), var(--neon-pink));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
-            margin: 10px 0;
-        }
-
-        .unit-text {
-            font-size: 1.2rem;
-            color: var(--neon-cyan);
-            font-weight: 600;
-        }
-
-        .label-text {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #8b9bb4;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-
-        /* Desain Tombol Hologram/Neon */
-        .btn-glow {
-            background: transparent;
-            color: var(--neon-cyan);
-            border: 2px solid var(--neon-cyan);
-            padding: 18px 50px;
-            font-size: 1.2rem;
-            font-weight: 800;
-            border-radius: 50px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: 0.4s;
-            cursor: pointer;
-            outline: none;
-            box-shadow: 0 0 15px transparent;
-        }
-
-        .btn-glow:hover {
-            background: var(--neon-cyan);
-            color: var(--dark-bg);
-            box-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
-            transform: scale(1.05);
-        }
-
-        /* Animasi Lampu Status Indikator */
         .status-dot {
-            height: 12px;
-            width: 12px;
-            background-color: #00ff00;
+            height: 8px;
+            width: 8px;
+            background-color: #cbd5e1;
             border-radius: 50%;
-            display: inline-block;
             margin-right: 10px;
-            box-shadow: 0 0 10px #00ff00;
-            animation: pulse 1.5s infinite;
+            transition: 0.3s;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 255, 0, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 0, 0); }
+        .status-dot.online {
+            background-color: var(--success);
+            box-shadow: 0 0 8px var(--success);
         }
 
-        .status-text {
-            font-size: 0.9rem;
-            color: #8b9bb4;
+        /* Card Styling */
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -8px rgba(0,0,0,0.08);
+            border-color: var(--primary-accent);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1;
+        }
+
+        .stat-unit {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-left: 4px;
+        }
+
+        /* Action Button */
+        .btn-feed {
+            background: var(--text-main);
+            color: #fff;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 14px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .btn-feed:hover {
+            background: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+
+        .btn-feed:active {
+            transform: scale(0.98);
+        }
+
+        .btn-feed:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        /* Responsive spacing */
+        @media (max-width: 768px) {
+            .stat-card { padding: 20px; }
+            .stat-value { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
 
-<div class="container py-5">
-    <div class="text-center mb-5">
-        <h1 class="display-4 fw-bold text-white mb-3" style="letter-spacing: 2px;">
-            NEXUS <span style="color: var(--neon-cyan);">FEEDER</span>
-        </h1>
-        <div class="d-flex justify-content-center align-items-center">
+<div class="main-container">
+    <div class="header-section d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="mb-1">Nexus Feeder</h1>
+            <p class="text-muted mb-0 small">Sistem manajemen pakan otomatis pintar</p>
+        </div>
+        <div class="status-pill">
             <span class="status-dot" id="online-dot"></span>
-            <span class="status-text" id="status-update">Menghubungkan ke satelit...</span>
+            <span id="status-update">Menghubungkan...</span>
         </div>
     </div>
 
-    <div class="row g-4 text-center">
+    <div class="row g-4">
         <div class="col-md-4">
-            <div class="glass-card">
-                <div class="label-text">Sisa Piring</div>
-                <div class="value-text" id="berat">0</div>
-                <div class="unit-text">GRAM</div>
+            <div class="stat-card">
+                <span class="stat-label">Sisa di Piring</span>
+                <div class="d-flex align-items-baseline">
+                    <span class="stat-value" id="berat">0</span>
+                    <span class="stat-unit">g</span>
+                </div>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="glass-card">
-                <div class="label-text">Jarak Sensor Stok</div>
-                <div class="value-text" id="stok">0</div>
-                <div class="unit-text">CENTIMETER</div>
+            <div class="stat-card">
+                <span class="stat-label">Tinggi Stok</span>
+                <div class="d-flex align-items-baseline">
+                    <span class="stat-value" id="stok">0</span>
+                    <span class="stat-unit">cm</span>
+                </div>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="glass-card">
-                <div class="label-text">Radar Gerakan</div>
-                <div class="value-text" id="gerakan" style="font-size: 2.5rem; margin-top: 30px;">--</div>
+            <div class="stat-card">
+                <span class="stat-label">Deteksi Gerakan</span>
+                <div class="stat-value" id="gerakan" style="font-size: 1.5rem;">--</div>
             </div>
         </div>
     </div>
 
-    <div class="text-center mt-5 pt-4">
-        <button class="btn-glow" onclick="kirimPakan()" id="btn-feed">
-            ⏻ INIT FEED SEQUENCE
+    <div class="text-center mt-5">
+        <button class="btn-feed" onclick="kirimPakan()" id="btn-feed">
+            Dispense Food Now
         </button>
+        <p class="mt-3 text-muted small">Pakan akan dikeluarkan segera setelah tombol ditekan.</p>
     </div>
 </div>
 
 <script>
-    // Konfigurasi API Blynk Kamu
     const AUTH_TOKEN = "YEqlZS1zKnV1mDvUK2V-i97XXJXMYUY3";
     const BASE_URL = "https://blynk.cloud/external/api";
 
@@ -180,46 +209,45 @@
                 fetch(`${BASE_URL}/get?token=${AUTH_TOKEN}&V3`).then(r => r.text())
             ]);
 
-            // Update Angka
             document.getElementById('berat').innerText = v1;
             document.getElementById('stok').innerText = v2;
-            document.getElementById('gerakan').innerText = v3;
+            document.getElementById('gerakan').innerText = v3 == "1" ? "Ada Gerakan" : "Standby";
 
-            // Indikator Online
-            document.getElementById('status-update').innerText = "Sistem Online | Real-time Sync";
-            document.getElementById('online-dot').style.backgroundColor = "#00ff00";
-            document.getElementById('online-dot').style.boxShadow = "0 0 10px #00ff00";
+            // Update UI Status
+            document.getElementById('status-update').innerText = "Connected";
+            document.getElementById('online-dot').classList.add('online');
 
         } catch (error) {
-            console.error("Gagal ambil data:", error);
-            document.getElementById('status-update').innerText = "Koneksi Terputus!";
-            document.getElementById('online-dot').style.backgroundColor = "#ff0000";
-            document.getElementById('online-dot').style.boxShadow = "0 0 10px #ff0000";
+            document.getElementById('status-update').innerText = "Offline";
+            document.getElementById('online-dot').classList.remove('online');
         }
     }
 
     function kirimPakan() {
         const btn = document.getElementById('btn-feed');
-        btn.innerText = "PROCESSING...";
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = "Processing...";
         
         fetch(`${BASE_URL}/update?token=${AUTH_TOKEN}&V5=1`)
             .then(() => {
                 setTimeout(() => {
-                    btn.innerText = "✔️ SUCCESS";
+                    btn.innerText = "Dispensed Successfully";
                     setTimeout(() => {
-                        btn.innerText = "⏻ INIT FEED SEQUENCE";
+                        btn.disabled = false;
+                        btn.innerText = originalText;
                     }, 2000);
-                }, 500);
+                }, 800);
             })
             .catch(() => {
-                alert("Gagal menghubungi server!");
-                btn.innerText = "⏻ INIT FEED SEQUENCE";
+                alert("Koneksi gagal!");
+                btn.disabled = false;
+                btn.innerText = originalText;
             });
     }
 
-    // Auto-update setiap 2.5 detik
     setInterval(fetchData, 2500);
-    fetchData(); // Panggil pertama kali
+    fetchData();
 </script>
 
 </body>
