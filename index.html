@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Feeder | Dashboard</title>
+    <title>Smart Pet Feeder | Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary-accent: #6366f1; /* Indigo lembut */
+            --primary-accent: #6366f1; 
             --bg-color: #f8fafc;
             --card-bg: #ffffff;
             --text-main: #1e293b;
@@ -31,7 +31,6 @@
             margin: 40px auto;
         }
 
-        /* Header Styling */
         .header-section {
             margin-bottom: 40px;
         }
@@ -43,7 +42,6 @@
             color: var(--text-main);
         }
 
-        /* Status Pill */
         .status-pill {
             display: inline-flex;
             align-items: center;
@@ -70,15 +68,12 @@
             box-shadow: 0 0 8px var(--success);
         }
 
-        /* Card Styling */
         .stat-card {
             background: var(--card-bg);
             border: 1px solid #e2e8f0;
             border-radius: 20px;
             padding: 30px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
         }
 
         .stat-card:hover {
@@ -111,7 +106,6 @@
             margin-left: 4px;
         }
 
-        /* Action Button */
         .btn-feed {
             background: var(--text-main);
             color: #fff;
@@ -127,22 +121,10 @@
         .btn-feed:hover {
             background: #000;
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
         }
 
         .btn-feed:active {
             transform: scale(0.98);
-        }
-
-        .btn-feed:disabled {
-            background: #94a3b8;
-            cursor: not-allowed;
-        }
-
-        /* Responsive spacing */
-        @media (max-width: 768px) {
-            .stat-card { padding: 20px; }
-            .stat-value { font-size: 2rem; }
         }
     </style>
 </head>
@@ -151,8 +133,8 @@
 <div class="main-container">
     <div class="header-section d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
-            <h1 class="mb-1">Nexus Feeder</h1>
-            <p class="text-muted mb-0 small">Sistem manajemen pakan otomatis pintar</p>
+            <h1 class="mb-1">Smart Pet Feeder</h1>
+            <p class="text-muted mb-0 small">Sistem monitoring dan pemberian pakan otomatis</p>
         </div>
         <div class="status-pill">
             <span class="status-dot" id="online-dot"></span>
@@ -173,7 +155,7 @@
 
         <div class="col-md-4">
             <div class="stat-card">
-                <span class="stat-label">Tinggi Stok</span>
+                <span class="stat-label">Level Stok</span>
                 <div class="d-flex align-items-baseline">
                     <span class="stat-value" id="stok">0</span>
                     <span class="stat-unit">cm</span>
@@ -183,7 +165,7 @@
 
         <div class="col-md-4">
             <div class="stat-card">
-                <span class="stat-label">Deteksi Gerakan</span>
+                <span class="stat-label">Radar Aktivitas</span>
                 <div class="stat-value" id="gerakan" style="font-size: 1.5rem;">--</div>
             </div>
         </div>
@@ -191,9 +173,9 @@
 
     <div class="text-center mt-5">
         <button class="btn-feed" onclick="kirimPakan()" id="btn-feed">
-            Dispense Food Now
+            Beri Pakan Sekarang
         </button>
-        <p class="mt-3 text-muted small">Pakan akan dikeluarkan segera setelah tombol ditekan.</p>
+        <p class="mt-3 text-muted small">Instruksi akan dikirim langsung ke modul servo perangkat.</p>
     </div>
 </div>
 
@@ -211,14 +193,13 @@
 
             document.getElementById('berat').innerText = v1;
             document.getElementById('stok').innerText = v2;
-            document.getElementById('gerakan').innerText = v3 == "1" ? "Ada Gerakan" : "Standby";
+            document.getElementById('gerakan').innerText = v3 == "1" ? "Terdeteksi" : "Siaga";
 
-            // Update UI Status
-            document.getElementById('status-update').innerText = "Connected";
+            document.getElementById('status-update').innerText = "Terhubung";
             document.getElementById('online-dot').classList.add('online');
 
         } catch (error) {
-            document.getElementById('status-update').innerText = "Offline";
+            document.getElementById('status-update').innerText = "Terputus";
             document.getElementById('online-dot').classList.remove('online');
         }
     }
@@ -227,12 +208,12 @@
         const btn = document.getElementById('btn-feed');
         const originalText = btn.innerText;
         btn.disabled = true;
-        btn.innerText = "Processing...";
+        btn.innerText = "Memproses...";
         
         fetch(`${BASE_URL}/update?token=${AUTH_TOKEN}&V5=1`)
             .then(() => {
                 setTimeout(() => {
-                    btn.innerText = "Dispensed Successfully";
+                    btn.innerText = "Berhasil Terkirim";
                     setTimeout(() => {
                         btn.disabled = false;
                         btn.innerText = originalText;
@@ -240,7 +221,7 @@
                 }, 800);
             })
             .catch(() => {
-                alert("Koneksi gagal!");
+                alert("Gagal mengirim perintah!");
                 btn.disabled = false;
                 btn.innerText = originalText;
             });
