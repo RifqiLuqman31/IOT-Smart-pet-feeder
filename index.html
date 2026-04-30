@@ -1,301 +1,269 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Pet Feeder Pro</title>
-    <link href="[cdn.jsdelivr.net](https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css)" rel="stylesheet">
-    <link href="[fonts.googleapis.com](https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap)" rel="stylesheet">
+#define BLYNK_TEMPLATE_ID "TMPL6lCd-kFaO"
+
+#define BLYNK_TEMPLATE_NAME "Pet Feeder IoT"
+
+#define BLYNK_AUTH_TOKEN "YEqlZS1zKnV1mDvUK2V-i97XXJXMYUY3"
+
+
+
+#include <ESP8266WiFi.h>
+
+#include <BlynkSimpleEsp8266.h>
+
+#include <Servo.h>
+
+#include "HX711.h"
+
+
+
+// Kredensial WiFi
+
+char auth[] = BLYNK_AUTH_TOKEN;
+
+char ssid[] = "Elelee";
+
+char pass[] = "modalsitik";
+
+
+
+// Definisi PIN
+
+#define PIN_TRIG      D5
+
+#define PIN_ECHO      D6
+
+#define PIN_PIR       D7
+
+#define PIN_SERVO     D4
+
+#define PIN_BUZZER    D8
+
+#define PIN_LED_HIJAU D3  
+
+#define PIN_LED       D0  
+
+#define PIN_HX_DT     D1
+
+#define PIN_HX_SCK    D2
+
+
+
+Servo myservo;
+
+HX711 scale;
+
+BlynkTimer timer;
+
+
+
+// --- PARAMETER ---
+
+float calibration_factor = 385.70; 
+
+int jarak_stok_habis = 24;        
+
+float berat_minimum = 30.0;      
+
+
+
+// Fungsi untuk menggerakkan servo (Bisa dipanggil otomatis atau manual)
+
+void feedPet() {
+
+  Serial.println("PROSES: Mengisi pakan...");
+
+  Blynk.virtualWrite(V4, "SEDANG MENGISI...");
+
+  
+
+  digitalWrite(PIN_LED_HIJAU, HIGH); 
+
+  digitalWrite(PIN_BUZZER, HIGH); delay(500); digitalWrite(PIN_BUZZER, LOW);
+
+
+
+  myservo.write(180); 
+
+  delay(2000); // Waktu membuka katup
+
+  myservo.write(0);
+
+  
+
+  digitalWrite(PIN_LED_HIJAU, LOW); 
+
+  Blynk.virtualWrite(V4, "READY");
+
+}
+
+
+
+// Fungsi utama pengiriman data (Dijalankan Timer)
+
+void sendSensorData() {
+
+  // 1. Baca Ultrasonik (Stok)
+
+  digitalWrite(PIN_TRIG, LOW);
+
+  delayMicroseconds(2);
+
+  digitalWrite(PIN_TRIG, HIGH);
+
+  delayMicroseconds(10);
+
+  digitalWrite(PIN_TRIG, LOW);
+
+  long durasi = pulseIn(PIN_ECHO, HIGH, 30000);
+
+  int jarak = durasi * 0.034 / 2;
+
+  if (durasi == 0 || jarak > 200) jarak = 100; // Filter error
+
+
+
+  // 2. Baca Berat (Load Cell)
+
+  float berat = scale.get_units(10);
+
+  if (berat < 3.0) berat = 0.0; 
+
+
+
+  // 3. Baca Gerakan (PIR)
+
+  int gerakan = digitalRead(PIN_PIR);
+
+
+
+  // --- KIRIM DATA KE BLYNK ---
+
+  Blynk.virtualWrite(V1, berat);    
+
+  Blynk.virtualWrite(V2, jarak);    
+
+  Blynk.virtualWrite(V3, gerakan == HIGH ? "ADA HEWAN" : "KOSONG");
+
+
+
+  // --- LOGIKA STOK HABIS ---
+  if (jarak > jarak_stok_habis) {
+    digitalWrite(PIN_LED, HIGH); // LED Merah menyala
     
-    <style>
-        :root {
-            --primary: #6366f1;
-            --primary-light: #818cf8;
-            --accent: #22d3ee;
-            --success: #10b981;
-            --danger: #ef4444;
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --bg-card-hover: #334155;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-        }
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-dark);
-            background-image: 
-                radial-gradient(ellipse at top, rgba(99, 102, 241, 0.15), transparent 50%),
-                radial-gradient(ellipse at bottom right, rgba(34, 211, 238, 0.1), transparent 50%);
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: 2rem 1rem;
-        }
-        .container-main {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-        .logo {
-            font-size: 1.75rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            margin-bottom: 0.75rem;
-        }
-        .logo span {
-            background: linear-gradient(135deg, var(--primary-light), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            padding: 6px 14px;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            color: var(--success);
-        }
-        .status-badge.offline {
-            background: rgba(239, 68, 68, 0.1);
-            border-color: rgba(239, 68, 68, 0.3);
-            color: var(--danger);
-        }
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: currentColor;
-            border-radius: 50%;
-            animation: blink 2s infinite;
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-        /* Cards Grid */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.25rem;
-            margin-bottom: 2.5rem;
-        }
-        .metric-card {
-            background: var(--bg-card);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 1.75rem;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .metric-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .metric-card:hover {
-            background: var(--bg-card-hover);
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-        .metric-card:hover::before {
-            opacity: 1;
-        }
-        .metric-label {
-            font-size: 0.75rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            margin-bottom: 1rem;
-        }
-        .metric-value {
-            font-size: 3rem;
-            font-weight: 700;
-            line-height: 1;
-            color: var(--text-primary);
-            margin-bottom: 0.25rem;
-        }
-        .metric-unit {
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-        .metric-icon {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            width: 40px;
-            height: 40px;
-            background: rgba(99, 102, 241, 0.1);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-        }
-        /* Feed Button */
-        .feed-section {
-            text-align: center;
-        }
-        .btn-feed {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white;
-            border: none;
-            padding: 1rem 2.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .btn-feed:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
-        }
-        .btn-feed:active {
-            transform: translateY(0);
-        }
-        .btn-feed.processing {
-            background: var(--bg-card);
-            box-shadow: none;
-            pointer-events: none;
-        }
-        .btn-feed.success {
-            background: linear-gradient(135deg, var(--success), #34d399);
-        }
-        /* Footer Info */
-        .footer-info {
-            text-align: center;
-            margin-top: 3rem;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .footer-info p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-        /* Responsive */
-        @media (max-width: 576px) {
-            .metric-value {
-                font-size: 2.5rem;
-            }
-            
-            .btn-feed {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-    </style>
-</head>
-<body>
-<div class="container-main">
-    <!-- Header -->
-    <header class="header">
-        <h1 class="logo">Nexus <span>Feeder</span></h1>
-        <div class="status-badge" id="status-badge">
-            <span class="status-dot" id="online-dot"></span>
-            <span id="status-update">Menghubungkan...</span>
-        </div>
-    </header>
-    <!-- Metric Cards -->
-    <div class="cards-grid">
-        <div class="metric-card">
-            <span class="metric-icon">🍽️</span>
-            <div class="metric-label">Sisa Piring</div>
-            <div class="metric-value" id="berat">--</div>
-            <div class="metric-unit">gram</div>
-        </div>
-        <div class="metric-card">
-            <span class="metric-icon">📡</span>
-            <div class="metric-label">Jarak Sensor Stok</div>
-            <div class="metric-value" id="stok">--</div>
-            <div class="metric-unit">cm</div>
-        </div>
-        <div class="metric-card">
-            <span class="metric-icon">🔍</span>
-            <div class="metric-label">Radar Gerakan</div>
-            <div class="metric-value" id="gerakan">--</div>
-            <div class="metric-unit">status</div>
-        </div>
-    </div>
-    <!-- Feed Button -->
-    <div class="feed-section">
-        <button class="btn-feed" onclick="kirimPakan()" id="btn-feed">
-            <span>▶</span> Mulai Feeding
-        </button>
-    </div>
-    <!-- Footer -->
-    <footer class="footer-info">
-        <p>Auto-sync setiap 2.5 detik • Blynk IoT</p>
-    </footer>
-</div>
-<script>
-    const AUTH_TOKEN = "YEqlZS1zKnV1mDvUK2V-i97XXJXMYUY3";
-    const BASE_URL = "[blynk.cloud](https://blynk.cloud/external/api)";
-    async function fetchData() {
-        try {
-            const [v1, v2, v3] = await Promise.all([
-                fetch(`${BASE_URL}/get?token=${AUTH_TOKEN}&V1`).then(r => r.text()),
-                fetch(`${BASE_URL}/get?token=${AUTH_TOKEN}&V2`).then(r => r.text()),
-                fetch(`${BASE_URL}/get?token=${AUTH_TOKEN}&V3`).then(r => r.text())
-            ]);
-            document.getElementById('berat').innerText = v1;
-            document.getElementById('stok').innerText = v2;
-            document.getElementById('gerakan').innerText = v3;
-            document.getElementById('status-update').innerText = "Online";
-            document.getElementById('status-badge').classList.remove('offline');
-        } catch (error) {
-            console.error("Gagal ambil data:", error);
-            document.getElementById('status-update').innerText = "Offline";
-            document.getElementById('status-badge').classList.add('offline');
-        }
-    }
-    function kirimPakan() {
-        const btn = document.getElementById('btn-feed');
-        btn.innerHTML = "<span>⏳</span> Memproses...";
-        btn.classList.add('processing');
-        
-        fetch(`${BASE_URL}/update?token=${AUTH_TOKEN}&V5=1`)
-            .then(() => {
-                setTimeout(() => {
-                    btn.innerHTML = "<span>✓</span> Berhasil!";
-                    btn.classList.remove('processing');
-                    btn.classList.add('success');
-                    setTimeout(() => {
-                        btn.innerHTML = "<span>▶</span> Mulai Feeding";
-                        btn.classList.remove('success');
-                    }, 2000);
-                }, 500);
-            })
-            .catch(() => {
-                alert("Gagal menghubungi server!");
-                btn.innerHTML = "<span>▶</span> Mulai Feeding";
-                btn.classList.remove('processing');
-            });
-    }
-    setInterval(fetchData, 2500);
-    fetchData();
-</script>
-</body>
-</html>
+    // TAMBAHKAN BARIS INI AGAR BUZZER BUNYI (Bunyi bip pendek)
+    digitalWrite(PIN_BUZZER, HIGH); 
+    delay(200); 
+    digitalWrite(PIN_BUZZER, LOW);
+
+    // Mengirim notifikasi ke HP jika stok kritis
+    Blynk.logEvent("stok_habis", "Peringatan: Stok pakan hampir habis!"); 
+  } else {
+    digitalWrite(PIN_LED, LOW);
+  }
+
+
+
+  // --- LOGIKA OTOMATIS (Ada Hewan & Piring Kosong) ---
+
+  if (gerakan == HIGH && berat < berat_minimum) {
+
+    feedPet();
+
+  }
+
+
+
+  // Debug ke Serial Monitor
+
+  Serial.print("Berat: "); Serial.print(berat); Serial.print(" g | ");
+
+  Serial.print("Stok: "); Serial.print(jarak); Serial.print(" cm | ");
+
+  Serial.print("Gerakan: "); Serial.println(gerakan == HIGH ? "TERDETEKSI" : "TIDAK TERDETEKSI");
+
+}
+
+
+
+// Tombol Manual di Aplikasi Blynk (V5)
+
+BLYNK_WRITE(V5) {
+
+  int value = param.asInt();
+
+  if (value == 1) {
+
+    Serial.println("Perintah Manual dari App...");
+
+    feedPet();
+
+    Blynk.virtualWrite(V5, 0); // Matikan tombol lagi di App
+
+  }
+
+}
+
+
+
+void setup() {
+
+  Serial.begin(115200);
+
+  
+
+  Blynk.begin(auth, ssid, pass);
+
+
+
+  pinMode(PIN_TRIG, OUTPUT);
+
+  pinMode(PIN_ECHO, INPUT);
+
+  pinMode(PIN_PIR, INPUT);
+
+  pinMode(PIN_BUZZER, OUTPUT);
+
+  pinMode(PIN_LED, OUTPUT);
+
+  pinMode(PIN_LED_HIJAU, OUTPUT);
+
+  
+
+  myservo.attach(PIN_SERVO);
+
+  myservo.write(0);
+
+  
+
+  scale.begin(PIN_HX_DT, PIN_HX_SCK);
+
+  Serial.println("KALIBRASI TIMBANGAN...");
+
+  scale.set_scale(calibration_factor);
+
+  scale.tare(); 
+
+  
+
+  // Set interval pengiriman data ke Blynk (setiap 1.5 detik)
+
+  timer.setInterval(1500L, sendSensorData);
+
+  
+
+  Serial.println("--- SISTEM ONLINE & READY ---");
+
+}
+
+
+
+void loop() {
+
+  Blynk.run();
+
+  timer.run();
+
+  // JANGAN ISI APAPUN DI SINI AGAR BLYNK TIDAK LAG
+
+}
+
